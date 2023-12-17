@@ -1,0 +1,285 @@
+import React, { useCallback, useEffect, useMemo } from "react";
+import {
+  Form,
+  FormItem,
+  Checkbox,
+  Cascader,
+  Editable,
+  Input,
+  NumberPicker,
+  Switch,
+  Password,
+  PreviewText,
+  Radio,
+  Reset,
+  Select,
+  Space,
+  Submit,
+  Transfer,
+  TreeSelect,
+  Upload,
+  FormGrid,
+  FormLayout,
+  FormTab,
+  FormCollapse,
+  ArrayTable,
+  // ArrayCards,
+  FormButtonGroup,
+  FormStep
+
+} from "@formily/antd";
+import TimePicker from "../components/TimePicker";
+import DatePicker from "../components/DatePicker";
+import ArrayCards from "../components/ArrayCards";
+import Text from "../components/Text";
+import Signature from "../components/Signature";
+import { Button } from "antd"
+import ar_EG from 'antd/locale/ar_EG';
+import en_US from 'antd/locale/en_US';
+import "antd/dist/reset.css"
+import { StyleProvider } from '@ant-design/cssinjs';
+import moment from 'moment'
+import lodash from "lodash";
+import { useNavigate } from "react-router-dom";
+
+
+import { createForm, registerValidateMessageTemplateEngine } from "@formily/core";
+import { FormProvider, FormConsumer, createSchemaField } from "@formily/react";
+import { useParams } from "react-router-dom";
+import { useState } from "react";
+import * as FormilyCore from '@formily/core'
+import * as FormilyReact from '@formily/react'
+import * as FormilyAntd from '@formily/antd'
+import * as Antd from 'antd'
+
+import { Card, Slider, Rate, ConfigProvider } from "antd";
+import toast from "react-hot-toast";
+
+import "./style.scss";
+import { useContext } from "react";
+import { IntlContext, useIntl } from "react-intl";
+import BuilderService from "../services/BuilderService";
+import FormService from "../services/FormService";
+
+const SchemaField = createSchemaField({
+  components: {
+    Space,
+    FormGrid,
+    FormLayout,
+    FormTab,
+    FormCollapse,
+    ArrayTable,
+    ArrayCards,
+    FormItem,
+    DatePicker,
+    Checkbox,
+    Cascader,
+    Editable,
+    Input,
+    Text,
+    NumberPicker,
+    Switch,
+    Password,
+    PreviewText,
+    Radio,
+    Reset,
+    Select,
+    Submit,
+    TimePicker,
+    Transfer,
+    TreeSelect,
+    Upload,
+    Card,
+    Slider,
+    Rate,
+    FormStep,
+    Signature
+  },
+});
+
+const FormRender = () => {
+  const intl = useIntl();
+  const { task_id, id, show } = useParams();
+  const navigation = useNavigate();
+
+  const [form, setForm] = useState({});
+  const [detailsShow, setShow] = useState(false);
+  const [formData, setFormData] = useState({});
+  const intlContext = useContext(IntlContext);
+  const isEn = intlContext.locale === "en";
+  const TRANSLATION = intl.messages
+  BuilderService.TRANSLATION = TRANSLATION
+  BuilderService.navigation = navigation;
+
+  const formatM = useCallback((msg) => {
+    if (msg) {
+      return intl.formatMessage({
+        id: msg,
+        defaultMessage: msg,
+      });
+    }
+  }, [intl])
+
+  const getForm = () => {
+    FormService.show(task_id).then((res) => {
+      setForm(res.data.data);
+    });
+  };
+
+  const getFormData = () => {
+    BuilderService.show(id).then(setFormData);
+  };
+
+  const schema = useMemo(() => {
+    if (form?.schema?.schema) {
+      const schema = JSON.parse(JSON.stringify(form?.schema?.schema))
+      BuilderService.addArabic(schema)
+      return schema
+    }
+  }, [form?.schema]);
+
+
+
+  const dData = useMemo(() => {
+    return formData ? JSON.parse(JSON.stringify(formData)) : null
+  }, [formData])
+
+
+  useEffect(() => {
+    getForm();
+  }, [task_id]);
+
+  useEffect(() => {
+    if (id) getFormData();
+  }, [id]);
+
+  useEffect(() => {
+    if (setShow) setShow(show);
+  }, [show]);
+
+  const formUtils = useMemo(() => {
+    return {
+      formId: task_id,
+      submissionId: id,
+      isShow: detailsShow,
+      isEdit: !!id
+    }
+  }, [task_id, id, detailsShow])
+
+  const GlobalUtility = useMemo(() => {
+    if (form?.schema?.form) {
+      const classString = form?.schema?.form?.global_utils || `
+      class GlobalUtilsClass {
+        constructor() {
+        }
+      };
+  `
+
+      const createClassFromStr = new Function(
+        classString + ' return GlobalUtilsClass;'
+      )
+      const DynamicClass = createClassFromStr()
+      return new DynamicClass({
+        lodash,
+        moment,
+        intl,
+        toast,
+        FormilyCore,
+        FormilyReact,
+        Antd,
+        FormilyAntd,
+        SchemaField
+      })
+    }
+  }, [form?.schema?.form])
+
+  if (!schema) return null;
+  BuilderService.schema = schema
+
+
+  const handelSubmit = (e) => {
+    if (id) {
+      BuilderService.update(id, e, task_id)
+    } else {
+      BuilderService.create(task_id, e)
+    }
+  };
+
+  registerValidateMessageTemplateEngine((message) => {
+    if (TRANSLATION[message]) {
+      return TRANSLATION[message]
+    }
+    return message
+  })
+
+  const renderForm = createForm({
+    values: dData,
+  });
+
+  renderForm.disabled = detailsShow
+  const formStep = FormStep.createFormStep()
+
+
+  return (
+    <div dir="none">
+      <ConfigProvider locale={isEn ? en_US : ar_EG}>
+
+        <StyleProvider hashPriority="high">
+
+
+          <Form {...form.schema.form} form={renderForm} >
+            <SchemaField schema={schema} scope={{
+              formStep, moment, lodash, formUtils,
+              GlobalUtils: GlobalUtility,
+              FormilyCore,
+              FormilyReact,
+              Antd,
+              FormilyAntd,
+              SchemaField
+            }} />
+
+            <FormConsumer>
+              {() => (
+                <FormButtonGroup className="justify-content-end m-2">
+                  {BuilderService.isStepperForm && (
+                    <>
+                      <Button
+                        disabled={!formStep.allowBack}
+                        onClick={() => {
+                          formStep.back()
+                        }}
+                      >
+                        Previous
+                      </Button>
+                      <Button
+                        disabled={!formStep.allowNext}
+                        onClick={() => {
+                          formStep.next()
+                        }}
+                      >
+                        Next step
+                      </Button>
+                    </>
+                  )}
+                  {!detailsShow && (
+                    <Submit
+                      disabled={formStep.allowNext}
+                      onSubmit={handelSubmit}
+                      onSubmitSuccess={(e) => console.log("Success", e)}
+                      onSubmitFailed={(e) => toast.error(formatM("Please fill all the required fields!"))}
+                      className="submitButton"
+                    >
+                      {formatM(id ? "Update" : "Submit")}
+                    </Submit>
+                  )}
+                </FormButtonGroup>
+              )}
+            </FormConsumer>
+          </Form>
+        </StyleProvider >
+      </ConfigProvider >
+
+    </div >)
+};
+
+export default FormRender;
