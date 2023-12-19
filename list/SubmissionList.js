@@ -132,8 +132,9 @@ const FormBuilderFormList = observer(() => {
         setIsLoading(false);
       });
   };
+
   const showData = (form_id) => {
-    navigate(`/Form-Builder/${id}/${form_id}/show`);
+    navigate(`${form_id}/show`);
   };
 
   const DeleteData = (id) => {
@@ -245,7 +246,7 @@ const FormBuilderFormList = observer(() => {
             // !selectedRow.active
           }
           isDelete={canEditDelete}
-          onEdit={(form_id) => navigate(`/Form-Builder/edit/${id}/${form_id}`)}
+          onEdit={(form_id) => navigate(`${form_id}/Edit`)}
           onClose={() => setSelectedRow(null)}
         />
       )}
@@ -256,7 +257,7 @@ const FormBuilderFormList = observer(() => {
         getData={getAllItems}
         id={id}
         loading={loading}
-        addFormUrl={`/Form-Builder/Add/${id}`}
+        addFormUrl={`Add`}
       />
       <Row style={{ overFlow: "auto" }} striped>
         <Col sm="12">
