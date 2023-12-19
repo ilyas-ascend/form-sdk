@@ -1,7 +1,7 @@
-import React, { useRef, useEffect, useState } from 'react'
+import React, { useRef, useEffect, useState, Fragment } from 'react'
 import cls from 'classnames'
 import SignatureCanvas from 'react-signature-canvas'
-import { Card as AntdCard } from 'antd'
+import { Card as AntdCard, Button } from 'antd'
 import { observer } from '@formily/reactive-react'
 
 const Signature = observer((props) => {
@@ -51,29 +51,45 @@ const Signature = observer((props) => {
     }
 
     return (
-        <>
-            <style>{cssStyle}</style>
-            <AntdCard
-                {...props}
-                title={
-                    <span data-content-editable="x-component-props.title">
-                        {props.title}
-                    </span>
-                }
-                className={cls(props.className, 'dn-signature')}
-            >
-                <div ref={parentRef}>
-                    <SignatureCanvas
-
-                        penColor="black"
-                        canvasProps={{ height: 150, width: parentWidth }}
-                        clearOnResize={false}
-                        ref={canvasRef}
-                        onEnd={handleChange}
-                    />
-                </div>
-            </AntdCard>
-        </>
+        <AntdCard
+            {...props}
+            title={
+                <span data-content-editable="x-component-props.title">
+                    {props.title}
+                </span>
+            }
+            extra={
+                <Fragment>
+                    {props.extra}
+                    {canvasRef?.current?.clear &&
+                        !props.disabled &&
+                        props.isClearSignature && (
+                            <Button
+                                type="text"
+                                onClick={canvasRef.current.clear}
+                                danger={props.isDanger}
+                            >
+                                <span data-content-editable="x-component-props.clearText">
+                                    {props.clearText}
+                                </span>
+                                {props.clearText || 'Clear Signature'}
+                            </Button>
+                        )}
+                </Fragment>
+            }
+            className={cls(props.className, 'dn-signature')}
+        >
+            <div ref={parentRef}>
+                <SignatureCanvas
+                    penColor="black"
+                    canvasProps={{ height: 150, width: parentWidth }}
+                    clearOnResize={false}
+                    ref={canvasRef}
+                    onEnd={handleChange}
+                    {...props}
+                />
+            </div>
+        </AntdCard>
     )
 })
 export default Signature;
