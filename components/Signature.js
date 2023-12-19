@@ -72,7 +72,6 @@ const Signature = observer((props) => {
                                 <span data-content-editable="x-component-props.clearText">
                                     {props.clearText}
                                 </span>
-                                {props.clearText || 'Clear Signature'}
                             </Button>
                         )}
                 </Fragment>
