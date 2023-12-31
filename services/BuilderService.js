@@ -31,7 +31,7 @@ class Service {
     try {
       const res = await this.SC.postCall({ url: `FormSubmission/create`, data: { data, id } });
       toast.success(res.data.data);
-      this.navigation(`Form-Builder/${id}`);
+      this.navigation(`/${id}/Form-Builder`);
     } catch (error) {
       console.log(error);
     }
@@ -45,7 +45,7 @@ class Service {
       });
 
       toast.success(res.data.data);
-      this.navigation(`Form-Builder/${task_id}`);
+      this.navigation(`/${task_id}/Form-Builder`);
     } catch (error) {
       console.log(error);
     }
@@ -93,10 +93,12 @@ class Service {
           "addonAfter",
           "suffix",
           "tooltip",
+          "content",
+          "clearText"
         ].includes(key) &&
         typeof obj[key] === "string"
       ) {
-        if (this.TRANSLATION[obj[key]]) {
+        if (this.TRANSLATION[obj[key]] && obj[key]) {
           obj[key] = this.TRANSLATION[obj[key]];
           obj["en_" + key] = obj[key];
         }
@@ -109,11 +111,11 @@ class Service {
               item.label = this.TRANSLATION[item.label];
             }
           }
-          if (item.value && typeof item.value === "string") {
-            if (this.TRANSLATION[item.value]) {
-              item.value = this.TRANSLATION[item.value];
-            }
-          }
+          // if (item.value && typeof item.value === "string") {
+          //   if (this.TRANSLATION[item.value]) {
+          //     item.value = this.TRANSLATION[item.value];
+          //   }
+          // }
         }
       } else if (typeof obj[key] === "object") {
         this.addArabic(obj[key]);

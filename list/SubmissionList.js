@@ -19,6 +19,10 @@ import { observer } from "mobx-react";
 import FormService from "../services/FormService";
 import FormSubmissionService from "../services/FormSubmissionService";
 import Dropdown from "../components/Dropdown";
+import DateObject from "react-date-object";
+import arabic from "react-date-object/calendars/arabic";
+import arabic_ar from "react-date-object/locales/arabic_en";
+import ExportExcelComponent from "../components/ExportExcel";
 
 function extractFieldsInfo(properties, parentPath = '') {
   let fieldsInfo = [];
@@ -174,16 +178,27 @@ const FormBuilderFormList = observer(() => {
       return {
         name: field.title,
         cell: (row) => {
-          if (field.xComponent === "DatePicker" && moment(get(row, `data.${field.key}`, ""))._isValid) {
+          let record = get(row, `data.${field.key}`)
+          if (field.xComponent === "DatePicker" && moment(record)._isValid) {
             return <span>
-              {moment(get(row, `data.${field.key}`, "")).format("DD-MM-YYYY")}{" "}
+              {moment(record).format("DD-MM-YYYY")}{" "}
               <span style={{ fontWeight: "bold" }}>
-                {moment(get(row, `data.${field.key}`, "")).format("h:mm")}
+                {moment(record).format("h:mm")}
               </span>
             </span>
           }
 
-          return <span>{get(row, `data.${field.key}`, "N/A")}</span>
+          if (field.xComponent === "DatePickerHijri" && record) {
+            let date = new DateObject({
+              date: record,
+              calendar: arabic,
+              locale: arabic_ar,
+            });
+
+            return <span>{date.format("YYYY-MM-DD")} </span>
+          }
+
+          return <span>{(record?.label || record || "N/A") + ""}</span>
         },
       }
     }),
@@ -241,9 +256,7 @@ const FormBuilderFormList = observer(() => {
           DeleteData={DeleteData}
           showData={showData}
           isEdit={
-            false
-            // (canEditDelete || selectedRow?.user?._id === userId) &&
-            // !selectedRow.active
+            true
           }
           isDelete={canEditDelete}
           onEdit={(form_id) => navigate(`${form_id}/Edit`)}
@@ -258,6 +271,15 @@ const FormBuilderFormList = observer(() => {
         id={id}
         loading={loading}
         addFormUrl={`Add`}
+        filter={true}
+        setFilter={setFilter}
+        // exportComponent={
+          // <ExportExcelComponent
+          //   url={props.exportUrl}
+          //   exportName="Export"
+          //   // params={props?.exportParams}
+          // />
+        // }
       />
       <Row style={{ overFlow: "auto" }} striped>
         <Col sm="12">

@@ -1,4 +1,6 @@
 import { Resources } from "./Resource";
+import { SC } from "../api/serverCall";
+
 class Service extends Resources {
   route = "form";
   routes = {
@@ -7,12 +9,16 @@ class Service extends Resources {
     show: "/show",
     update: "/update",
     delete: "/delete",
+    allForms: this.route + "/all-forms"
   };
 
-  ranking = {};
 
   constructor() {
     super(arguments);
+  }
+
+  getAllForms() {
+    return SC.getCall({ url: this.routes.allForms });
   }
 
 }

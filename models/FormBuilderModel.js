@@ -50,7 +50,7 @@ export class FormBuilderModel {
     });
   };
   onEdit = (id) => {
-    SC.getCall({ url: `form/edit-builder/${id}` }).then((res) => {
+    SC.getCall({ url: `form/builder/${id}` }).then((res) => {
       if (res.status == 200) {
         // console.log("res", res);
         window.open(res.data.link);
