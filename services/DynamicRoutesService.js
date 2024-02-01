@@ -28,27 +28,29 @@ class Service {
           data: { data },
         } = await FormService.getAllForms();
 
-        data?.forEach((item) => {
-          formBuilderSideMenu.push({
-            id: camelCase(item.name),
-            title: item.name,
-            titleAr: item.name,
-            navLink: `/${item._id}/Form-Builder`,
-            icon: () =>
-              item.saved_icon ? (
-                <img
-                  src={item.saved_icon}
-                  width={30}
-                  style={{ marginRight: 7 }}
-                />
-              ) : (
-                ESurveyIcon
-              ),
-            isAuth: true,
-            skipForQuickAdd: true,
-            isAvailableForAll: true,
+        data
+          .filter((item) => item.active)
+          ?.forEach((item) => {
+            formBuilderSideMenu.push({
+              id: camelCase(item.name),
+              title: item.name,
+              titleAr: item.name,
+              navLink: `/${item._id}/Form-Builder`,
+              icon: () =>
+                item.saved_icon ? (
+                  <img
+                    src={item.saved_icon}
+                    width={30}
+                    style={{ marginRight: 7 }}
+                  />
+                ) : (
+                  ESurveyIcon
+                ),
+              isAuth: true,
+              skipForQuickAdd: true,
+              isAvailableForAll: true,
+            });
           });
-        });
       } catch (error) {
         console.log("Esurvey issue: ", error);
       }

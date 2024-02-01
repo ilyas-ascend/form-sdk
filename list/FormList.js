@@ -9,6 +9,7 @@ import {
   Input,
   FormFeedback,
   ModalHeader,
+  FormGroup,
 } from "reactstrap";
 import List from "../components/listing/List";
 import Dropdown from "../components/Dropdown";
@@ -112,6 +113,20 @@ const ListComponent = observer(() => {
     navigate("/Form-Builder/Add/" + e);
   };
 
+  const updateStatus = (id, status) => {
+    FormService.SC.postCall({
+      url: `form/change-status`,
+      data: { id, status },
+    }).then((res) => {
+      if (res.status == 200) {
+        setTimeout(() => {
+          toast.success(res.data.data);
+        }, 100);
+        getAllItems({ isFromSearch: false, selected: pagination.page - 1 });
+      }
+    });
+  };
+
   const DeleteData = (id) => {
     MySwal.fire({
       html: "<p class='confirm-class-head' >Are you sure you want to delete?</p>",
@@ -132,7 +147,6 @@ const ListComponent = observer(() => {
               selected: pagination.page - 1,
             });
             try {
-
               toast.success(res.data.data.data || res.data.data);
             } catch (error) {
               toast.success("Form deleted successfully!");
@@ -155,7 +169,10 @@ const ListComponent = observer(() => {
     {
       name: "Logo",
       sortable: true,
-      cell: (row) => row.icon && <img src={row.saved_icon || row.icon} width={50} height={50} />,
+      cell: (row) =>
+        row.icon && (
+          <img src={row.saved_icon || row.icon} width={50} height={50} />
+        ),
     },
     {
       name: "Creation Date",
@@ -171,6 +188,27 @@ const ListComponent = observer(() => {
       ),
     },
     {
+      name: "Status",
+      width: "300px",
+      header: (props) => (
+        <th style={{ textAlign: "center" }}>{props.children}</th>
+      ),
+      cell: (row) => {
+        return (
+          <FormGroup switch>
+            <Input
+              style={{ cursor: "pointer" }}
+              type="switch"
+              role="switch"
+              checked={!!row.status}
+              onChange={(e) => updateStatus(row._id, e.target.checked)}
+            />
+          </FormGroup>
+        );
+      },
+    },
+
+    {
       name: "ACTION",
       sortable: false,
       cell: (row) => (
@@ -179,17 +217,17 @@ const ListComponent = observer(() => {
             canEditDelete ||
             canView ||
             row?.user?._id === userId) && (
-              <MoreVertical
-                style={{ marginLeft: 10, cursor: "pointer" }}
-                onClick={(e) => {
-                  setSelectedRow({
-                    ...row,
-                    clientX: e.clientX,
-                    clientY: e.clientY,
-                  });
-                }}
-              />
-            )}
+            <MoreVertical
+              style={{ marginLeft: 10, cursor: "pointer" }}
+              onClick={(e) => {
+                setSelectedRow({
+                  ...row,
+                  clientX: e.clientX,
+                  clientY: e.clientY,
+                });
+              }}
+            />
+          )}
         </>
       ),
     },
@@ -263,7 +301,6 @@ const ListComponent = observer(() => {
     );
   });
 
-
   return (
     <Fragment>
       <Modal
@@ -309,11 +346,9 @@ const ListComponent = observer(() => {
           row={selectedRow}
           DeleteData={DeleteData}
           showData={showData}
-          editTitle='Open Engine'
-          detailsText='Open Form'
-          isEdit={
-            true
-          }
+          editTitle="Open Engine"
+          detailsText="Open Form"
+          isEdit={true}
           isDelete={canEditDelete}
           onEdit={(id) => createModalStates.onEdit(id)}
           onClose={() => setSelectedRow(null)}

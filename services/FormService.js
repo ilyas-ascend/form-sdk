@@ -2,6 +2,7 @@ import { Resources } from "./Resource";
 import { SC } from "../api/serverCall";
 
 class Service extends Resources {
+  SC = SC;
   route = "form";
   routes = {
     find: "",
@@ -9,9 +10,8 @@ class Service extends Resources {
     show: "/show",
     update: "/update",
     delete: "/delete",
-    allForms: this.route + "/all-forms"
+    allForms: this.route + "/all-forms",
   };
-
 
   constructor() {
     super(arguments);
@@ -20,9 +20,8 @@ class Service extends Resources {
   getAllForms() {
     return SC.getCall({ url: this.routes.allForms });
   }
-
 }
 
-const FormService = new Service()
+const FormService = new Service();
 
-export default FormService
+export default FormService;
