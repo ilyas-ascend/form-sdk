@@ -29,7 +29,7 @@ class Service {
         } = await FormService.getAllForms();
 
         data
-          .filter((item) => item.active)
+          // .filter((item) => item.active)
           ?.forEach((item) => {
             formBuilderSideMenu.push({
               id: camelCase(item.name),
@@ -59,8 +59,16 @@ class Service {
 
     this.formBuilderRoutes = [
       {
-        element: <FormBuilder key={"tasks-route"} />,
-        path: "/:task_id/Form-Builder/Add",
+        element: <FormBuilder key={"add"} />,
+        path: "/:form_id/Form-Builder/Add",
+        route: "Form-Builder",
+        slug: "Form-Builder",
+        title: "Form Builder Form",
+        isForm: true,
+      },
+      {
+        element: <FormBuilder key={"tasks"} />,
+        path: "/:form_id/Form-Builder/Add/:task_id",
         route: "Form-Builder",
         slug: "Form-Builder",
         title: "Form Builder Form",
@@ -68,7 +76,7 @@ class Service {
       },
       {
         element: <FormBuilder key={"edit"} />,
-        path: "/:task_id/Form-Builder/:id/Edit",
+        path: "/:form_id/Form-Builder/:id/Edit",
         route: "Form-Builder",
         slug: "Form-Builder",
         title: "Form Builder Form",
@@ -76,7 +84,7 @@ class Service {
       },
       {
         element: <FormBuilder key={"show"} />,
-        path: "/:task_id/Form-Builder/:id/:show",
+        path: "/:form_id/Form-Builder/:id/:show",
         route: "Form-Builder",
         slug: "Form-Builder",
         title: "Form Builder Details",

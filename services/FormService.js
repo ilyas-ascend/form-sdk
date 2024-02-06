@@ -20,6 +20,10 @@ class Service extends Resources {
   getAllForms() {
     return SC.getCall({ url: this.routes.allForms });
   }
+
+  getTask = (id) => {
+    return SC.getCall({ url: "tasks/show/" + id });
+  };
 }
 
 const FormService = new Service();
