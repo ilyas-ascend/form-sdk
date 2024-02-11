@@ -106,7 +106,7 @@ const createFormStep = (defaultCurrent = 0) => {
   return markRaw(formStep);
 };
 
-export const FormStep = connect(
+export const FormReviewStep = connect(
   observer(({ formStep, className, ...props }) => {
     const field = useField();
     const prefixCls = usePrefixCls("formily-step", props);
@@ -116,18 +116,15 @@ export const FormStep = connect(
     formStep?.connect?.(steps, field);
     return (
       <div className={cls(prefixCls, className)}>
-        <Steps
-          {...props}
-          style={{ marginBottom: 10, ...props.style }}
-          current={current}
-        >
-          {steps.map(({ props }, key) => {
-            return <Steps.Step {...props} key={key} />;
-          })}
-        </Steps>
         {steps.map(({ name, schema }, key) => {
-          if (key !== current) return;
-          return <RecursionField key={key} name={name} schema={schema} />;
+          // if (key !== current) return;
+          console.log("schema", schema);
+          return (
+            <>
+              <h1>{schema["x-component-props"].title}</h1>
+              <RecursionField key={key} name={name} schema={schema} />
+            </>
+          );
         })}
       </div>
     );
@@ -138,7 +135,7 @@ const StepPane = ({ children }) => {
   return <Fragment>{children}</Fragment>;
 };
 
-FormStep.StepPane = StepPane;
-FormStep.createFormStep = createFormStep;
+FormReviewStep.StepPane = StepPane;
+FormReviewStep.createFormStep = createFormStep;
 
-export default FormStep;
+export default FormReviewStep;

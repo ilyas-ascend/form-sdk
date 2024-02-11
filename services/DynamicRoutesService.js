@@ -3,6 +3,7 @@ import camelCase from "lodash/camelCase";
 import { ESurveyIcon } from "../assets/SVG";
 import FormService from "./FormService";
 const FormBuilder = lazy(() => import("../add"));
+const FormBuilderShow = lazy(() => import("../review"));
 import SubmissionList from "../list/SubmissionList";
 
 class Service {
@@ -83,7 +84,7 @@ class Service {
         isForm: true,
       },
       {
-        element: <FormBuilder key={"show"} />,
+        element: <FormBuilderShow key={"show"} />,
         path: "/:form_id/Form-Builder/:id/:show",
         route: "Form-Builder",
         slug: "Form-Builder",
