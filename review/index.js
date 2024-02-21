@@ -3,33 +3,33 @@ import {
   Form,
   FormItem,
   Checkbox,
-  Cascader,
+  // Cascader,
   // Editable,
   // Input,
   // NumberPicker,
   // Switch,
-  Password,
-  PreviewText,
+  // Password,
+  // PreviewText,
   Radio,
   Reset,
   // Select,
   Space,
   Submit,
   Transfer,
-  TreeSelect,
-  Upload,
+  // TreeSelect,
+  // Upload,
   FormGrid,
   FormLayout,
   FormTab,
   FormCollapse,
-  ArrayTable,
+  ArrayTable as MyArrayTable,
   // ArrayCards,
   FormButtonGroup,
 } from "@formily/antd";
-import TimePicker from "../components/TimePicker";
-import DatePicker from "../components/DatePicker";
-import DatePickerHijri from "../components/DatePickerHijri";
-import ArrayCards from "../components/ArrayCards";
+// import TimePicker from "../components/TimePicker";
+// import DatePicker from "../components/DatePicker";
+// import DatePickerHijri from "../components/DatePickerHijri";
+import ArrayCards from "./ArrayCards";
 import FormStep from "./form-review-step";
 import Text from "../components/Text";
 import Signature from "../components/Signature";
@@ -71,15 +71,22 @@ import "./style.scss";
 import DraftModal from "../models/DraftModal";
 import AutoSave from "../components/AutoSave";
 import { Spinner } from "reactstrap";
-const Switch = (props) => {
-  return <p>{props?.value ? "Yes" : "No"}</p>;
-};
-const NumberPicker = (props) => <h1>test</h1>;
-const Editable = (props) => <h1>test</h1>;
-const Select = (props) => {
-  return <p>{props?.value || props?.value?.value || "-"}</p>;
-};
-const Input = (props) => <p>{props?.value || "-"}</p>;
+import {
+  Switch,
+  NumberPicker,
+  Select,
+  Input,
+  DatePicker,
+  TimePicker,
+  DatePickerHijri,
+  Upload,
+  ArrayTable,
+  TreeSelect,
+  Cascader,
+  Editable,
+  Password,
+  PreviewText,
+} from "./components";
 
 const SchemaField = createSchemaField({
   components: {
@@ -126,11 +133,10 @@ const ReviewForm = () => {
   const { form_id, id, task_id, show } = useParams();
   const navigation = useNavigate();
 
-  // TODO: Get user from localstorage (get key from ENV file)
   let user = getUserData();
   const [form, setForm] = useState({});
   const [task, setTask] = useState();
-  const [detailsShow, setShow] = useState(false);
+  const [detailsShow] = useState(true);
   const [formData, setFormData] = useState({});
   const intlContext = useContext(IntlContext);
   const isEn = intlContext.locale === "en";
@@ -147,33 +153,6 @@ const ReviewForm = () => {
       values: dData,
     });
   }, [dData]);
-
-  const draft = useMemo(() => {
-    return new DraftModal({
-      class_name: task_id ? task_id : form_id,
-      isEdit: id,
-      init: (data) => {
-        if (!show || !id) {
-          renderForm.setValues(data);
-        }
-      },
-      getPayload: () => {
-        return JSON.parse(JSON.stringify(renderForm.values));
-      },
-    });
-  }, [renderForm]);
-
-  const formatM = useCallback(
-    (msg) => {
-      if (msg) {
-        return intl.formatMessage({
-          id: msg,
-          defaultMessage: msg,
-        });
-      }
-    },
-    [intl]
-  );
 
   const getForm = () => {
     FormService.show(form_id).then((res) => {
@@ -288,15 +267,6 @@ const ReviewForm = () => {
   if (!schema) return <Spinner />;
   BuilderService.schema = schema;
 
-  const handelSubmit = (e) => {
-    if (id) {
-      BuilderService.update(id, e, form_id);
-    } else {
-      BuilderService.create(form_id, e);
-    }
-    draft.clearDraft();
-  };
-
   registerValidateMessageTemplateEngine((message) => {
     if (TRANSLATION[message]) {
       return TRANSLATION[message];
@@ -328,51 +298,6 @@ const ReviewForm = () => {
                 FormilyReactive,
               }}
             />
-            <div className="d-flex justify-content-between flex-wrap mt-2">
-              <AutoSave draft={draft} />
-              <FormConsumer>
-                {() => (
-                  <FormButtonGroup className="justify-content-end m-2">
-                    {BuilderService.isStepperForm && (
-                      <>
-                        <Button
-                          disabled={!formStep.allowBack}
-                          onClick={() => {
-                            formStep.back();
-                          }}
-                        >
-                          Previous
-                        </Button>
-                        <Button
-                          disabled={!formStep.allowNext}
-                          onClick={() => {
-                            console.log(formStep.steps, "ilyas");
-                            formStep.next();
-                          }}
-                        >
-                          Next step
-                        </Button>
-                      </>
-                    )}
-                    {!detailsShow && (
-                      <Submit
-                        disabled={formStep.allowNext}
-                        onSubmit={handelSubmit}
-                        onSubmitSuccess={(e) => console.log("Success", e)}
-                        onSubmitFailed={(e) =>
-                          toast.error(
-                            formatM("Please fill all the required fields!")
-                          )
-                        }
-                        className="submitButton"
-                      >
-                        {formatM(id ? "Update" : "Submit")}
-                      </Submit>
-                    )}
-                  </FormButtonGroup>
-                )}
-              </FormConsumer>
-            </div>
           </Form>
         </StyleProvider>
       </ConfigProvider>

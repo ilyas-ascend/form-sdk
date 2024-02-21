@@ -107,36 +107,7 @@ export const ArrayCards = observer((props) => {
     });
   };
 
-  const renderAddition = () => {
-    return schema.reduceProperties((addition, schema, key) => {
-      if (isAdditionComponent(schema)) {
-        return <RecursionField schema={schema} name={key} />;
-      }
-      return addition;
-    }, null);
-  };
-
-  const renderEmpty = () => {
-    if (dataSource?.length) return;
-    return (
-      <Card
-        {...props}
-        onChange={() => {}}
-        className={cls(`${prefixCls}-item`, props.className)}
-        title={props.title || field.title}
-      >
-        <Empty />
-      </Card>
-    );
-  };
-
-  return (
-    <ArrayBase>
-      {renderEmpty()}
-      {renderItems()}
-      {renderAddition()}
-    </ArrayBase>
-  );
+  return <ArrayBase>{renderItems()}</ArrayBase>;
 });
 
 ArrayCards.displayName = "ArrayCards";
