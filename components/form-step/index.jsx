@@ -75,6 +75,7 @@ const createFormStep = (defaultCurrent = 0) => {
       env.field = field;
     },
     current: defaultCurrent,
+    stepsValidations: [],
     setCurrent(key) {
       setDisplay(key);
       formStep.current = key;
@@ -88,14 +89,53 @@ const createFormStep = (defaultCurrent = 0) => {
     get steps() {
       return env.steps;
     },
+
     async next() {
       try {
         await env.form.validate();
-        if (env.form.valid) {
-          next();
+        // if (env.form.valid) {
+        // }
+      } catch {
+      } finally {
+        if (env.form.errors.length > 0) {
+          let currentData = [...formStep.stepsValidations];
+          const index = currentData.findIndex(
+            (item) => item.name === env.steps[formStep.current].props.title
+          );
+          if (index >= 0) {
+            currentData[index] = {
+              name: env.steps[formStep.current].props.title,
+              validate: false,
+            };
+          } else {
+            currentData.push({
+              name: env.steps[formStep.current].props.title,
+              validate: false,
+            });
+          }
+          formStep.stepsValidations = currentData;
+        } else {
+          let currentData = [...formStep.stepsValidations];
+          const index = currentData.findIndex(
+            (item) => item.name === env.steps[formStep.current].props.title
+          );
+          if (index >= 0) {
+            currentData[index] = {
+              name: env.steps[formStep.current].props.title,
+              validate: true,
+            };
+          } else {
+            currentData.push({
+              name: env.steps[formStep.current].props.title,
+              validate: true,
+            });
+          }
+          formStep.stepsValidations = currentData;
         }
-      } catch {}
+        next();
+      }
     },
+
     async back() {
       back();
     },

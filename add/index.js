@@ -26,6 +26,7 @@ import {
   // ArrayCards,
   FormButtonGroup,
 } from "@formily/antd";
+import { CheckOutlined, CloseOutlined } from "@ant-design/icons";
 import TimePicker from "../components/TimePicker";
 import DatePicker from "../components/DatePicker";
 import DatePickerHijri from "../components/DatePickerHijri";
@@ -59,7 +60,7 @@ import * as FormilyAntd from "@formily/antd";
 import * as Antd from "antd";
 import * as FormilyReactive from "@formily/reactive";
 
-import { Card, Slider, Rate, ConfigProvider } from "antd";
+import { Card, Slider, Rate, ConfigProvider, Modal, Row, Col } from "antd";
 import toast from "react-hot-toast";
 
 import { useContext } from "react";
@@ -73,6 +74,8 @@ import AutoSave from "../components/AutoSave";
 import { Spinner } from "reactstrap";
 import TaskService from "../services/TaskService";
 import ReviewForm from "../review";
+
+import { observer } from "@formily/react";
 
 const SchemaField = createSchemaField({
   components: {
@@ -115,6 +118,8 @@ const FormRender = () => {
   const intl = useIntl();
   const { form_id, id, task_id, show } = useParams();
   const navigation = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const formStep = useMemo(() => FormStep.createFormStep(), []);
 
   // TODO: Get user from localstorage (get key from ENV file)
   let user = getUserData();
@@ -288,9 +293,9 @@ const FormRender = () => {
   };
 
   const handelSubmit = async (e) => {
-    setReview(false);
-    setReviewdata(null);
-
+    // setReview(false);
+    // setReviewdata(null);
+    setIsModalOpen(false);
     setIsSubmitting(true);
     if (task_id) {
       try {
@@ -325,8 +330,18 @@ const FormRender = () => {
   });
 
   renderForm.disabled = detailsShow;
-  const formStep = FormStep.createFormStep();
 
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleOk = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
   return (
     <div dir="none">
       <ConfigProvider locale={isEn ? en_US : ar_EG}>
@@ -382,7 +397,7 @@ const FormRender = () => {
                       {formReview ? (
                         <Submit
                           disabled={formStep.allowNext}
-                          onSubmit={handelSubmit}
+                          onSubmit={showModal}
                           onSubmitSuccess={(e) => console.log("Success", e)}
                           onSubmitFailed={(e) =>
                             toast.error(
@@ -403,6 +418,45 @@ const FormRender = () => {
                         </Submit>
                       )}
                     </>
+                    <Modal
+                      title="Steps Status"
+                      open={isModalOpen}
+                      onCancel={handleCancel}
+                      footer={[
+                        <Button key="back" onClick={handleCancel}>
+                          Cancel
+                        </Button>,
+                        <Submit
+                          onSubmit={handelSubmit}
+                          onSubmitSuccess={(e) => console.log("Success", e)}
+                          onSubmitFailed={(e) =>
+                            toast.error(
+                              formatM("Please fill all the required fields!")
+                            )
+                          }
+                          className="submitButton"
+                        >
+                          {formatM(id ? "Update" : "Submit")}
+                        </Submit>,
+                      ]}
+                    >
+                      <Row gutter={[0, 16]}>
+                        {formStep.stepsValidations.map((item) => {
+                          return (
+                            <>
+                              <Col span={20}>{item.name}</Col>
+                              <Col span={4}>
+                                {item.validate ? (
+                                  <CheckOutlined />
+                                ) : (
+                                  <CloseOutlined />
+                                )}
+                              </Col>
+                            </>
+                          );
+                        })}
+                      </Row>
+                    </Modal>
                   </FormButtonGroup>
                 )}
               </FormConsumer>
