@@ -61,6 +61,7 @@ import * as FormilyReactive from "@formily/reactive";
 
 import { Card, Slider, Rate, ConfigProvider } from "antd";
 import toast from "react-hot-toast";
+import Loadable from "react-loadable";
 
 import { useContext } from "react";
 import { IntlContext, useIntl } from "react-intl";
@@ -68,9 +69,24 @@ import BuilderService from "../services/BuilderService";
 import FormService from "../services/FormService";
 import { SC } from "../api/serverCall";
 import "./style.scss";
-import DraftModal from "../models/DraftModal";
-import AutoSave from "../components/AutoSave";
 import { Spinner } from "reactstrap";
+// import SubmissionReview from "../../components/SubmissionReview";
+// import TaskModal from "../../wasfaty/Models/TaskModal";
+
+const SubmissionReview = Loadable({
+  loader: () => import("../../components/SubmissionReview"),
+  loading() {
+    return null;
+  },
+});
+
+const TaskModal = Loadable({
+  loader: () => import("../../wasfaty/Models/TaskModal"),
+  loading() {
+    return null;
+  },
+});
+
 import {
   Switch,
   NumberPicker,
@@ -124,19 +140,18 @@ const SchemaField = createSchemaField({
     DatePickerHijri,
   },
 });
-class FormSubmission {
-  constructor() {}
-}
 
-const ReviewForm = () => {
+const ReviewForm = ({ data }) => {
   const intl = useIntl();
   const { form_id, id, task_id, show } = useParams();
   const navigation = useNavigate();
+  const TaskShow = window.location.pathname.split("/")[4] == "task";
 
+  // TODO: Get user from localstorage (get key from ENV file)
   let user = getUserData();
   const [form, setForm] = useState({});
   const [task, setTask] = useState();
-  const [detailsShow] = useState(true);
+  const [detailsShow, setShow] = useState(false);
   const [formData, setFormData] = useState({});
   const intlContext = useContext(IntlContext);
   const isEn = intlContext.locale === "en";
@@ -163,7 +178,8 @@ const ReviewForm = () => {
   const getTask = () => {
     if (task_id) {
       FormService.getTask(task_id).then((res) => {
-        setTask(res.data.data);
+        setTask(new TaskModal(res.data.data));
+        setFormData(res.data.data.data);
       });
     }
   };
@@ -220,8 +236,14 @@ const ReviewForm = () => {
   }, [id]);
 
   useEffect(() => {
+    if (data) setFormData(data);
+    setShow(true);
+    // console.log("data,data", data);
+  }, [data]);
+
+  useEffect(() => {
     if (setShow) setShow(show);
-  }, [show]);
+  }, [show, TaskShow]);
 
   const formUtils = useMemo(() => {
     return {
@@ -279,6 +301,8 @@ const ReviewForm = () => {
 
   return (
     <div dir="none">
+      {task && TaskShow && <SubmissionReview task={task} />}
+
       <ConfigProvider locale={isEn ? en_US : ar_EG}>
         <StyleProvider hashPriority="high">
           <Form {...form.schema.form} form={renderForm}>

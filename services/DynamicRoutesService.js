@@ -84,8 +84,16 @@ class Service {
         isForm: true,
       },
       {
+        element: <FormBuilderShow key={"edit"} />,
+        path: "/:form_id/Form-Builder/:task_id/task",
+        route: "Form-Builder",
+        slug: "Form-Builder",
+        title: "Form Builder Form",
+        isForm: true,
+      },
+      {
         element: <FormBuilderShow key={"show"} />,
-        path: "/:form_id/Form-Builder/:id/:show",
+        path: "/:form_id/Form-Builder/:id",
         route: "Form-Builder",
         slug: "Form-Builder",
         title: "Form Builder Details",

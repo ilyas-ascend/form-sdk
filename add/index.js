@@ -71,6 +71,8 @@ import "./style.scss";
 import DraftModal from "../models/DraftModal";
 import AutoSave from "../components/AutoSave";
 import { Spinner } from "reactstrap";
+import TaskService from "../services/TaskService";
+import ReviewForm from "../review";
 
 const SchemaField = createSchemaField({
   components: {
@@ -108,9 +110,6 @@ const SchemaField = createSchemaField({
     DatePickerHijri,
   },
 });
-class FormSubmission {
-  constructor() {}
-}
 
 const FormRender = () => {
   const intl = useIntl();
@@ -121,7 +120,10 @@ const FormRender = () => {
   let user = getUserData();
   const [form, setForm] = useState({});
   const [task, setTask] = useState();
+  const [isSubmitting, setIsSubmitting] = useState();
   const [detailsShow, setShow] = useState(false);
+  const [formReview, setReview] = useState(false);
+  const [formReviewdata, setReviewdata] = useState(null);
   const [formData, setFormData] = useState({});
   const intlContext = useContext(IntlContext);
   const isEn = intlContext.locale === "en";
@@ -272,6 +274,7 @@ const FormRender = () => {
         SC,
         FormilyReactive,
         user,
+        renderForm,
       });
     }
   }, [form?.schema?.form]);
@@ -279,13 +282,39 @@ const FormRender = () => {
   if (!schema) return <Spinner />;
   BuilderService.schema = schema;
 
-  const handelSubmit = (e) => {
+  const setIsReview = (e) => {
+    setReview(true);
+    setReviewdata(e);
+  };
+
+  const handelSubmit = async (e) => {
+    setReview(false);
+    setReviewdata(null);
+
+    setIsSubmitting(true);
+    if (task_id) {
+      try {
+        let res = await TaskService.update(task_id, { data: e });
+
+        if (res.status === 200) {
+          toast.success(res?.data?.data);
+          navigation("/My-task");
+        } else {
+          toast.error(res?.response?.data?.data);
+        }
+      } catch (error) {}
+      setIsSubmitting(false);
+
+      return;
+    }
+
     if (id) {
-      BuilderService.update(id, e, form_id);
+      await BuilderService.update(id, e, form_id);
     } else {
-      BuilderService.create(form_id, e);
+      await BuilderService.create(form_id, e);
     }
     draft.clearDraft();
+    setIsSubmitting(false);
   };
 
   registerValidateMessageTemplateEngine((message) => {
@@ -303,63 +332,77 @@ const FormRender = () => {
       <ConfigProvider locale={isEn ? en_US : ar_EG}>
         <StyleProvider hashPriority="high">
           <Form {...form.schema.form} form={renderForm}>
-            <SchemaField
-              schema={schema}
-              scope={{
-                formStep,
-                moment,
-                lodash,
-                formUtils,
-                GlobalUtils: GlobalUtility,
-                FormilyCore,
-                FormilyReact,
-                Antd,
-                FormilyAntd,
-                SchemaField,
-                FormilyReactive,
-              }}
-            />
+            {formReview ? (
+              <ReviewForm data={formReviewdata} />
+            ) : (
+              <SchemaField
+                schema={schema}
+                scope={{
+                  formStep,
+                  moment,
+                  lodash,
+                  formUtils,
+                  GlobalUtils: GlobalUtility,
+                  FormilyCore,
+                  FormilyReact,
+                  Antd,
+                  FormilyAntd,
+                  SchemaField,
+                  FormilyReactive,
+                  renderForm,
+                }}
+              />
+            )}
+
             <div className="d-flex justify-content-between flex-wrap mt-2">
               <AutoSave draft={draft} />
               <FormConsumer>
                 {() => (
                   <FormButtonGroup className="justify-content-end m-2">
-                    {BuilderService.isStepperForm && (
-                      <>
-                        <Button
-                          disabled={!formStep.allowBack}
-                          onClick={() => {
-                            formStep.back();
-                          }}
-                        >
-                          Previous
-                        </Button>
-                        <Button
-                          disabled={!formStep.allowNext}
-                          onClick={() => {
-                            console.log(formStep.steps, "ilyas");
-                            formStep.next();
-                          }}
-                        >
-                          Next step
-                        </Button>
-                      </>
-                    )}
-                    {!detailsShow && (
-                      <Submit
-                        disabled={formStep.allowNext}
-                        onSubmit={handelSubmit}
-                        onSubmitSuccess={(e) => console.log("Success", e)}
-                        onSubmitFailed={(e) =>
-                          toast.error(
-                            formatM("Please fill all the required fields!")
-                          )
-                        }
-                        className="submitButton"
+                    <>
+                      <Button
+                        disabled={!formStep.allowBack}
+                        onClick={() => {
+                          formStep.back();
+                        }}
                       >
-                        {formatM(id ? "Update" : "Submit")}
-                      </Submit>
-                    )}
+                        Previous
+                      </Button>
+                      <Button
+                        disabled={!formStep.allowNext}
+                        onClick={() => {
+                          console.log(formStep.steps, "ilyas");
+                          formStep.next();
+                        }}
+                      >
+                        Next step
+                      </Button>
+                    </>
+                    <>
+                      {formReview ? (
+                        <Submit
+                          disabled={formStep.allowNext}
+                          onSubmit={handelSubmit}
+                          onSubmitSuccess={(e) => console.log("Success", e)}
+                          onSubmitFailed={(e) =>
+                            toast.error(
+                              formatM("Please fill all the required fields!")
+                            )
+                          }
+                          className="submitButton"
+                          loading={isSubmitting}
+                        >
+                          {formatM(id || task?.data ? "Update" : "Submit")}
+                        </Submit>
+                      ) : (
+                        <Submit
+                          disabled={formStep.allowNext}
+                          onSubmit={setIsReview}
+                        >
+                          Review
+                        </Submit>
+                      )}
+                    </>
                   </FormButtonGroup>
                 )}
               </FormConsumer>
