@@ -61,7 +61,6 @@ import * as FormilyReactive from "@formily/reactive";
 
 import { Card, Slider, Rate, ConfigProvider } from "antd";
 import toast from "react-hot-toast";
-import Loadable from "react-loadable";
 
 import { useContext } from "react";
 import { IntlContext, useIntl } from "react-intl";
@@ -70,22 +69,9 @@ import FormService from "../services/FormService";
 import { SC } from "../api/serverCall";
 import "./style.scss";
 import { Spinner } from "reactstrap";
-// import SubmissionReview from "../../components/SubmissionReview";
-// import TaskModal from "../../wasfaty/Models/TaskModal";
-
-const SubmissionReview = Loadable({
-  loader: () => import("../../components/SubmissionReview"),
-  loading() {
-    return null;
-  },
-});
-
-const TaskModal = Loadable({
-  loader: () => import("../../wasfaty/Models/TaskModal"),
-  loading() {
-    return null;
-  },
-});
+import { GenaricUtils } from "../../GenaricUtils";
+const SubmissionReview = GenaricUtils["SubmissionReview"];
+const TaskModal = GenaricUtils["TaskModal"];
 
 import {
   Switch,
