@@ -300,7 +300,7 @@ const ReviewForm = ({ data }) => {
   const formStep = FormStep.createFormStep();
 
   return (
-    <div dir="none">
+    <div dir="none" id="review">
       {task && TaskShow && <SubmissionReview task={task} />}
 
       <ConfigProvider locale={isEn ? en_US : ar_EG}>

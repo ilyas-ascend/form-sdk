@@ -93,15 +93,21 @@ export const ArrayCards = observer((props) => {
       );
       return (
         <ArrayBase.Item key={index} index={index} record={item}>
-          <Card
-            {...props}
-            onChange={() => {}}
-            className={cls(`${prefixCls}-item`, props.className)}
-            title={title}
-            extra={extra}
-          >
-            {content}
-          </Card>
+          {!props.hide_card ? (
+            <>
+              <Card
+                {...props}
+                onChange={() => {}}
+                className={cls(`${prefixCls}-item`, props.className)}
+                title={title}
+                extra={extra}
+              >
+                {content}
+              </Card>
+            </>
+          ) : (
+            content
+          )}
         </ArrayBase.Item>
       );
     });

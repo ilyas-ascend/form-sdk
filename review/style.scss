@@ -1,18 +1,20 @@
-.submitButton {
-  background-color: #11a945;
-  color: white;
-  border-radius: 5px;
-  border: none !important;
-}
+#review {
+  .submitButton {
+    background-color: #11a945;
+    color: white;
+    border-radius: 5px;
+    border: none !important;
+  }
 
-.ant-formily-item-layout-vertical {
-  display: flex !important;
-}
-h1 {
-  margin-top: 10px;
-}
-label {
-  font-size: 15px;
-  color: rgb(4, 36, 74);
-  font-weight: 500;
+  .ant-formily-item-layout-vertical {
+    display: flex !important;
+  }
+  h1 {
+    margin-top: 10px;
+  }
+  label {
+    font-size: 15px;
+    color: rgb(4, 36, 74);
+    font-weight: 500;
+  }
 }

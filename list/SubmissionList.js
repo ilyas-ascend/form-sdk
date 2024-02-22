@@ -138,7 +138,7 @@ const FormBuilderFormList = observer(() => {
   };
 
   const showData = (form_id) => {
-    navigate(`${form_id}/show`);
+    navigate(`${form_id}`);
   };
 
   const DeleteData = (id) => {
