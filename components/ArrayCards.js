@@ -5,6 +5,7 @@ import {
   observer,
   useFieldSchema,
   RecursionField,
+  Schema,
 } from "@formily/react";
 import cls from "classnames";
 import { usePrefixCls } from "@formily/antd/esm/__builtins__";
@@ -39,6 +40,16 @@ const isOperationComponent = (schema) => {
   );
 };
 
+export const questionPriorityColor = {
+  Critical: "#BB0A1E",
+
+  High: "#FD471F",
+
+  Medium: "#FFA115",
+
+  Low: "#FEDB24",
+};
+
 export const ArrayCards = observer((props) => {
   const field = useField();
   const schema = useFieldSchema();
@@ -52,6 +63,10 @@ export const ArrayCards = observer((props) => {
       const items = Array.isArray(schema.items)
         ? schema.items[index] || schema.items[0]
         : schema.items;
+      const myItems = items.toJSON();
+
+      console.log("===>", item);
+
       const title = (
         <span>
           <RecursionField
@@ -80,9 +95,48 @@ export const ArrayCards = observer((props) => {
           {props.extra}
         </span>
       );
+
+      let myItemsSch = new Schema(JSON.parse(JSON.stringify(myItems)));
+      const propertyMapper = (property) => {
+        property.mapProperties((p) => {
+          propertyMapper(p);
+        });
+
+        if (item[property.title]) {
+          property.title = item[property.title];
+          property.required = !!item.required;
+          if (item.priority) {
+            property["x-decorator-props"]["addonAfter"] = (
+              <p
+                style={{
+                  backgroundColor: questionPriorityColor[item.priority],
+                  padding: "2px 4px",
+                  color: "white",
+                  borderRadius: 7,
+                  fontSize: 11,
+                }}
+              >
+                {item.priority}
+              </p>
+            );
+          } else {
+            if (property["x-decorator-props"]["addonAfter"] === "Low") {
+              property["x-decorator-props"]["addonAfter"] = "";
+            }
+          }
+        }
+
+        if (property?.["x-component-props"]?.content) {
+          property["x-component-props"].content =
+            item[property["x-component-props"].content];
+        }
+      };
+
+      propertyMapper(myItemsSch);
+
       const content = (
         <RecursionField
-          schema={items}
+          schema={myItemsSch}
           name={index}
           filterProperties={(schema) => {
             if (isIndexComponent(schema)) return false;

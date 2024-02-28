@@ -22,7 +22,7 @@ import {
   FormLayout,
   FormTab,
   FormCollapse,
-  ArrayTable as MyArrayTable,
+  ArrayTable ,
   // ArrayCards,
   FormButtonGroup,
 } from "@formily/antd";
@@ -82,7 +82,7 @@ import {
   TimePicker,
   DatePickerHijri,
   Upload,
-  ArrayTable,
+  // ArrayTable,
   TreeSelect,
   Cascader,
   Editable,
@@ -93,7 +93,7 @@ import {
 const SchemaField = createSchemaField({
   components: {
     Space,
-    FormGrid,
+    // FormGrid,
     FormLayout,
     FormTab,
     FormCollapse,
@@ -152,6 +152,7 @@ const ReviewForm = ({ data }) => {
   const renderForm = useMemo(() => {
     return createForm({
       values: dData,
+      readPretty: true,
     });
   }, [dData]);
 
@@ -268,6 +269,8 @@ const ReviewForm = ({ data }) => {
         SC,
         FormilyReactive,
         user,
+        isShow: true,
+        renderForm
       });
     }
   }, [form?.schema?.form]);

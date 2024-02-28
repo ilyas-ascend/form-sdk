@@ -52,6 +52,8 @@ export const ArrayCards = observer((props) => {
       const items = Array.isArray(schema.items)
         ? schema.items[index] || schema.items[0]
         : schema.items;
+      const myItems = items.toJSON();
+
       const title = (
         <span>
           <RecursionField
@@ -82,11 +84,17 @@ export const ArrayCards = observer((props) => {
       );
       const content = (
         <RecursionField
-          schema={items}
+          schema={myItems}
           name={index}
           filterProperties={(schema) => {
             if (isIndexComponent(schema)) return false;
             if (isOperationComponent(schema)) return false;
+            schema.mapProperties((property) => {
+              if (item[property.title]) {
+                property.title = item[property.title];
+                property.required = !!item.required;
+              }
+            });
             return true;
           }}
         />

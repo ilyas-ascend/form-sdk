@@ -1,13 +1,20 @@
-import React, { useCallback, useEffect, useMemo } from "react";
+import { StyleProvider } from "@ant-design/cssinjs";
+import { CheckOutlined, CloseOutlined } from "@ant-design/icons";
 import {
-  Form,
-  FormItem,
-  Checkbox,
+  ArrayTable,
   Cascader,
+  Checkbox,
   Editable,
+  Form,
+  // ArrayCards,
+  FormButtonGroup,
+  FormCollapse,
+  FormGrid,
+  FormItem,
+  FormLayout,
+  FormTab,
   Input,
   NumberPicker,
-  Switch,
   Password,
   PreviewText,
   Radio,
@@ -15,67 +22,62 @@ import {
   Select,
   Space,
   Submit,
+  Switch,
   Transfer,
   TreeSelect,
   Upload,
-  FormGrid,
-  FormLayout,
-  FormTab,
-  FormCollapse,
-  ArrayTable,
-  // ArrayCards,
-  FormButtonGroup,
 } from "@formily/antd";
-import { CheckOutlined, CloseOutlined } from "@ant-design/icons";
-import TimePicker from "../components/TimePicker";
-import DatePicker from "../components/DatePicker";
-import DatePickerHijri from "../components/DatePickerHijri";
-import ArrayCards from "../components/ArrayCards";
-import FormStep from "../components/form-step";
-import Text from "../components/Text";
-import Signature from "../components/Signature";
-import { Button } from "antd";
+import { Schema } from "@formily/json-schema";
+import { getUserData } from "@utils";
+import { Button, Divider as ANTDDivider } from "antd";
+import "antd/dist/reset.css";
 import ar_EG from "antd/locale/ar_EG";
 import en_US from "antd/locale/en_US";
-import "antd/dist/reset.css";
-import { StyleProvider } from "@ant-design/cssinjs";
-import moment from "moment";
 import lodash from "lodash";
+import moment from "moment";
+import { useCallback, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { getUserData } from "@utils";
-import { Schema } from "@formily/json-schema";
+import ArrayCards from "../components/ArrayCards";
+import DatePicker from "../components/DatePicker";
+import DatePickerHijri from "../components/DatePickerHijri";
+import Signature from "../components/Signature";
+import Text from "../components/Text";
+import TimePicker from "../components/TimePicker";
+import FormStep from "../components/form-step";
 
 import "@formily/antd/dist/antd.css";
 
+import * as FormilyAntd from "@formily/antd";
+import * as FormilyCore from "@formily/core";
 import {
   createForm,
   registerValidateMessageTemplateEngine,
 } from "@formily/core";
-import { FormProvider, FormConsumer, createSchemaField } from "@formily/react";
-import { useParams } from "react-router-dom";
-import { useState } from "react";
-import * as FormilyCore from "@formily/core";
 import * as FormilyReact from "@formily/react";
-import * as FormilyAntd from "@formily/antd";
-import * as Antd from "antd";
+import { FormConsumer, createSchemaField } from "@formily/react";
 import * as FormilyReactive from "@formily/reactive";
+import * as Antd from "antd";
+import { useState } from "react";
+import { useParams } from "react-router-dom";
 
-import { Card, Slider, Rate, ConfigProvider, Modal, Row, Col } from "antd";
+import { Card, Col, ConfigProvider, Modal, Rate, Row, Slider } from "antd";
 import toast from "react-hot-toast";
 
 import { useContext } from "react";
 import { IntlContext, useIntl } from "react-intl";
+import { Spinner } from "reactstrap";
+import { SC } from "../api/serverCall";
+import AutoSave from "../components/AutoSave";
+import DraftModal from "../models/DraftModal";
+import ReviewForm from "../review";
 import BuilderService from "../services/BuilderService";
 import FormService from "../services/FormService";
-import { SC } from "../api/serverCall";
-import "./style.scss";
-import DraftModal from "../models/DraftModal";
-import AutoSave from "../components/AutoSave";
-import { Spinner } from "reactstrap";
 import TaskService from "../services/TaskService";
-import ReviewForm from "../review";
+import "./style.scss";
 
-import { observer } from "@formily/react";
+const Divider = () => {
+  return <ANTDDivider style={{ margin: 10 }} />;
+};
 
 const SchemaField = createSchemaField({
   components: {
@@ -111,6 +113,7 @@ const SchemaField = createSchemaField({
     FormStep,
     Signature,
     DatePickerHijri,
+    Divider,
   },
 });
 
@@ -289,12 +292,9 @@ const FormRender = () => {
 
   const setIsReview = (e) => {
     setReview(true);
-    setReviewdata(e);
   };
 
   const handelSubmit = async (e) => {
-    // setReview(false);
-    // setReviewdata(null);
     setIsModalOpen(false);
     setIsSubmitting(true);
     if (task_id) {
@@ -348,7 +348,7 @@ const FormRender = () => {
         <StyleProvider hashPriority="high">
           <Form {...form.schema.form} form={renderForm}>
             {formReview ? (
-              <ReviewForm data={formReviewdata} />
+              <ReviewForm data={renderForm.values} formSchema={form} />
             ) : (
               <SchemaField
                 schema={schema}
@@ -378,7 +378,8 @@ const FormRender = () => {
                       <Button
                         disabled={!formStep.allowBack}
                         onClick={() => {
-                          formStep.back();
+                          if (formReview) setReview(false);
+                          else formStep.back();
                         }}
                       >
                         Previous
