@@ -64,9 +64,6 @@ export const ArrayCards = observer((props) => {
         ? schema.items[index] || schema.items[0]
         : schema.items;
       const myItems = items.toJSON();
-
-      console.log("===>", item);
-
       const title = (
         <span>
           <RecursionField

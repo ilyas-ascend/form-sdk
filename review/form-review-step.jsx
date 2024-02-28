@@ -118,7 +118,6 @@ export const FormReviewStep = connect(
       <div className={cls(prefixCls, className)}>
         {steps.map(({ name, schema }, key) => {
           // if (key !== current) return;
-          console.log("schema", schema);
           return (
             <>
               <h1>{schema["x-component-props"].title}</h1>
