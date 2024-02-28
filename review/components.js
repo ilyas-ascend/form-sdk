@@ -31,13 +31,20 @@ export const Upload = (props) => {
     <div>
       {props.value &&
         props.value.map((file, index) => (
-          <ul key={index}>
-            <li>{file.name}</li>
-          </ul>
+          <>
+            {!!file?.response?.imageUrl && (
+              <img
+                src={file.response.imageUrl}
+                height={"auto"}
+                width={"10%"}
+              />
+            )}
+          </>
         ))}
     </div>
   );
 };
+Upload.Dragger = Upload;
 export const ArrayTable = (props) => {
   const renderTableItem = (item) => {
     return (

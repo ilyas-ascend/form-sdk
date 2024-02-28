@@ -22,7 +22,7 @@ import {
   FormLayout,
   FormTab,
   FormCollapse,
-  ArrayTable ,
+  ArrayTable,
   // ArrayCards,
   FormButtonGroup,
 } from "@formily/antd";
@@ -127,7 +127,7 @@ const SchemaField = createSchemaField({
   },
 });
 
-const ReviewForm = ({ data }) => {
+const ReviewForm = ({ data, formSchema = {} }) => {
   const intl = useIntl();
   const { form_id, id, task_id, show } = useParams();
   const navigation = useNavigate();
@@ -135,10 +135,10 @@ const ReviewForm = ({ data }) => {
 
   // TODO: Get user from localstorage (get key from ENV file)
   let user = getUserData();
-  const [form, setForm] = useState({});
+  const [form, setForm] = useState(() => formSchema);
   const [task, setTask] = useState();
-  const [detailsShow, setShow] = useState(false);
-  const [formData, setFormData] = useState({});
+  const [detailsShow, setShow] = useState(() => !!data);
+  const [formData, setFormData] = useState(() => data);
   const intlContext = useContext(IntlContext);
   const isEn = intlContext.locale === "en";
   const TRANSLATION = intl.messages;
@@ -214,19 +214,15 @@ const ReviewForm = ({ data }) => {
   }, [form?.schema, task, task_id]);
 
   useEffect(() => {
-    getTask();
-    getForm();
-  }, [form_id]);
+    if (!data) {
+      getTask();
+      getForm();
+    }
+  }, [form_id, data]);
 
   useEffect(() => {
     if (id) getFormData();
   }, [id]);
-
-  useEffect(() => {
-    if (data) setFormData(data);
-    setShow(true);
-    // console.log("data,data", data);
-  }, [data]);
 
   useEffect(() => {
     if (setShow) setShow(show);
@@ -270,7 +266,7 @@ const ReviewForm = ({ data }) => {
         FormilyReactive,
         user,
         isShow: true,
-        renderForm
+        renderForm,
       });
     }
   }, [form?.schema?.form]);
