@@ -1,4 +1,6 @@
 import { Resources } from "./Resource";
+import { SC } from "../api/serverCall";
+
 class Service extends Resources {
   route = "FormSubmission";
   routes = {
@@ -7,6 +9,7 @@ class Service extends Resources {
     show: "/show",
     update: "/update",
     delete: "/delete",
+    all: "/all",
   };
   ranking = {};
 
@@ -14,6 +17,12 @@ class Service extends Resources {
     super(arguments);
   }
 
+  async all(params = {}) {
+    return SC.getCall({
+      url: this.route + this.routes.all,
+      params,
+    });
+  }
 }
 
 const FormSubmissionService = new Service();

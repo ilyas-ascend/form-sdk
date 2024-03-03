@@ -1,9 +1,6 @@
 import { Fragment, useEffect, useState } from "react";
-import {
-  Row,
-  Col,
-} from "reactstrap";
-import List from "../components/listing/List"
+import { Row, Col, Spinner } from "reactstrap";
+import List from "../components/listing/List";
 import get from "lodash/get";
 import moment from "moment";
 import "./style.scss";
@@ -23,8 +20,11 @@ import DateObject from "react-date-object";
 import arabic from "react-date-object/calendars/arabic";
 import arabic_ar from "react-date-object/locales/arabic_en";
 import ExportExcelComponent from "../components/ExportExcel";
+import pdfIcon from "../assets/pdfIcon.svg";
 
-function extractFieldsInfo(properties, parentPath = '') {
+import { Download } from "react-feather";
+
+function extractFieldsInfo(properties, parentPath = "") {
   let fieldsInfo = [];
 
   for (const key in properties) {
@@ -35,14 +35,16 @@ function extractFieldsInfo(properties, parentPath = '') {
       const fieldInfo = {
         key,
         title: property.title || key,
-        xComponent: property['x-component'] || null
+        xComponent: property["x-component"] || null,
       };
 
       fieldsInfo.push(fieldInfo);
     }
 
     if (property.properties) {
-      fieldsInfo = fieldsInfo.concat(extractFieldsInfo(property.properties, propertyPath));
+      fieldsInfo = fieldsInfo.concat(
+        extractFieldsInfo(property.properties, propertyPath)
+      );
     }
   }
 
@@ -60,7 +62,7 @@ const FormBuilderFormList = observer(() => {
   const userId = user._id;
   const canEditDelete = ["admin"].includes(type);
   const canView = ["moderator"].includes(type);
-  const [form, setForm] = useState()
+  const [form, setForm] = useState();
 
   const [items, setItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -80,13 +82,13 @@ const FormBuilderFormList = observer(() => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    getForm()
-  }, [id])
+    getForm();
+  }, [id]);
 
   const getForm = () => {
     FormService.show(id).then((res) => {
-      setForm(res.data?.data)
-    })
+      setForm(res.data?.data);
+    });
   };
 
   const getAllItems = (query = { selected: 0 }) => {
@@ -173,19 +175,20 @@ const FormBuilderFormList = observer(() => {
   const tableFields = extractFieldsInfo(form?.schema?.schema?.properties);
 
   const basicColumns = [
-
     ...tableFields.map((field) => {
       return {
         name: field.title,
         cell: (row) => {
-          let record = get(row, `data.${field.key}`)
+          let record = get(row, `data.${field.key}`);
           if (field.xComponent === "DatePicker" && moment(record)._isValid) {
-            return <span>
-              {moment(record).format("DD-MM-YYYY")}{" "}
-              <span style={{ fontWeight: "bold" }}>
-                {moment(record).format("h:mm")}
+            return (
+              <span>
+                {moment(record).format("DD-MM-YYYY")}{" "}
+                <span style={{ fontWeight: "bold" }}>
+                  {moment(record).format("h:mm")}
+                </span>
               </span>
-            </span>
+            );
           }
 
           if (field.xComponent === "DatePickerHijri" && record) {
@@ -195,12 +198,12 @@ const FormBuilderFormList = observer(() => {
               locale: arabic_ar,
             });
 
-            return <span>{date.format("YYYY-MM-DD")} </span>
+            return <span>{date.format("YYYY-MM-DD")} </span>;
           }
 
-          return <span>{(record?.label || record || "N/A") + ""}</span>
+          return <span>{(record?.label || record || "N/A") + ""}</span>;
         },
-      }
+      };
     }),
     {
       name: "Submitted by",
@@ -221,6 +224,11 @@ const FormBuilderFormList = observer(() => {
       ),
     },
     {
+      name: "PDF",
+      sortable: false,
+      cell: (row) => <PdfDownload row={row} />,
+    },
+    {
       name: "ACTION",
       sortable: false,
       cell: (row) => (
@@ -229,23 +237,23 @@ const FormBuilderFormList = observer(() => {
             canEditDelete ||
             canView ||
             row?.user?._id === userId) && (
-              <MoreVertical
-                style={{ marginLeft: 10, cursor: "pointer" }}
-                onClick={(e) => {
-                  setSelectedRow({
-                    ...row,
-                    clientX: e.clientX,
-                    clientY: e.clientY,
-                  });
-                }}
-              />
-            )}
+            <MoreVertical
+              style={{ marginLeft: 10, cursor: "pointer" }}
+              onClick={(e) => {
+                setSelectedRow({
+                  ...row,
+                  clientX: e.clientX,
+                  clientY: e.clientY,
+                });
+              }}
+            />
+          )}
         </>
       ),
     },
   ];
 
-  if (!form) return null
+  if (!form) return null;
 
   return (
     <Fragment>
@@ -255,9 +263,7 @@ const FormBuilderFormList = observer(() => {
           row={selectedRow}
           DeleteData={DeleteData}
           showData={showData}
-          isEdit={
-            true
-          }
+          isEdit={true}
           isDelete={canEditDelete}
           onEdit={(form_id) => navigate(`${form_id}/Edit`)}
           onClose={() => setSelectedRow(null)}
@@ -273,13 +279,14 @@ const FormBuilderFormList = observer(() => {
         addFormUrl={`Add`}
         filter={true}
         setFilter={setFilter}
-        // exportComponent={
-          // <ExportExcelComponent
-          //   url={props.exportUrl}
-          //   exportName="Export"
-          //   // params={props?.exportParams}
-          // />
-        // }
+        exportComponent={
+          <ExportExcelComponent
+            // url={props.exportUrl}
+            exportName="Export"
+            form_id={id}
+            // params={props?.exportParams}
+          />
+        }
       />
       <Row style={{ overFlow: "auto" }} striped>
         <Col sm="12">
@@ -297,3 +304,54 @@ const FormBuilderFormList = observer(() => {
 });
 
 export default FormBuilderFormList;
+
+const PdfDownload = ({ row }) => {
+  const [PDF, setPDF] = useState(false);
+  let token = JSON.parse(localStorage.getItem("accessToken"));
+  const baseUrl = process.env.REACT_APP_BASEURL;
+
+  return (
+    <div className="cursorPointer">
+      {PDF ? (
+        <Spinner className="me-25" size="md" />
+      ) : (
+        <Download
+          src={pdfIcon}
+          style={{ cursor: "pointer" }}
+          onClick={() => {
+            setPDF(true);
+
+            const myHeaders = new Headers();
+            myHeaders.append("Content-Type", "application/json");
+
+            fetch("https://efficax-analytics.kakashi.app/pdf", {
+              headers: myHeaders,
+
+              method: "POST",
+              body: JSON.stringify({
+                url: `?id=${row._id}&token=${token}&url=${baseUrl}`,
+              }),
+            })
+              .then((response) => {
+                return response.blob();
+              })
+              .then((res) => {
+                console.log(res);
+                setPDF(false);
+                try {
+                  const link = document.createElement("a");
+                  link.href = URL.createObjectURL(res);
+                  link.download = "Submission";
+                  link.click();
+                  setPDF(false);
+                } catch (error) {
+                  setPDF(false);
+                  // toast.error(IntlService.m("There is a problem with your network connection!"));
+                }
+              });
+          }}
+        />
+      )}
+    </div>
+  );
+};
