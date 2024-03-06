@@ -5,21 +5,11 @@ export const Switch = (props) => {
 };
 export const NumberPicker = (props) => <p>{props?.value || "-"}</p>;
 export const Select = (props) => {
-  return (
-    <p>
-      {props?.value?.value
-        ? typeof props.value.value === "string"
-          ? props.value.value
-          : "-"
-        : props?.value
-        ? typeof props.value === "string"
-          ? props.value
-          : "-"
-        : "-"}
-    </p>
-  );
+  let value = props?.value?.label || props?.value?.value;
+  return <p>{value}</p>;
 };
 export const Input = (props) => <p>{props?.value || "-"}</p>;
+Input.TextArea = Input;
 
 export const DatePicker = (props) => <p>{props?.value || "-"}</p>;
 export const TimePicker = (props) => <p>{props?.value || "-"}</p>;
@@ -33,11 +23,7 @@ export const Upload = (props) => {
         props.value.map((file, index) => (
           <>
             {!!file?.response?.imageUrl && (
-              <img
-                src={file.response.imageUrl}
-                height={"auto"}
-                width={"10%"}
-              />
+              <img src={file.response.imageUrl} height={"auto"} width={"10%"} />
             )}
           </>
         ))}

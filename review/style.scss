@@ -12,9 +12,18 @@
   h1 {
     margin-top: 10px;
   }
-  // label {
-  //   font-size: 15px;
-  //   color: rgb(4, 36, 74);
-  //   font-weight: 500;
-  // }
+  .ant-formily-item-label {
+    align-self: center !important;
+    font-size: 12px;
+    color: rgb(4, 36, 74);
+    font-weight: 600;
+  }
+
+  p {
+    margin: unset !important;
+  }
+
+  .ant-formily-item-control-content {
+    min-height: unset;
+  }
 }

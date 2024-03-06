@@ -348,7 +348,11 @@ const FormRender = () => {
         <StyleProvider hashPriority="high">
           <Form {...form.schema.form} form={renderForm}>
             {formReview ? (
-              <ReviewForm data={renderForm.values} formSchema={form} />
+              <ReviewForm
+                data={renderForm.values}
+                formSchema={form}
+                myTask={task}
+              />
             ) : (
               <SchemaField
                 schema={schema}

@@ -72,6 +72,11 @@ import { Spinner } from "reactstrap";
 import { GenaricUtils } from "../../GenaricUtils";
 const SubmissionReview = GenaricUtils["SubmissionReview"];
 const TaskModal = GenaricUtils["TaskModal"];
+import { Divider as ANTDDivider } from "antd";
+
+const Divider = () => {
+  return <ANTDDivider style={{ margin: 10 }} />;
+};
 
 import {
   Switch,
@@ -124,10 +129,11 @@ const SchemaField = createSchemaField({
     FormStep,
     Signature,
     DatePickerHijri,
+    Divider,
   },
 });
 
-const ReviewForm = ({ data, formSchema = {} }) => {
+const ReviewForm = ({ data, formSchema = {}, myTask }) => {
   const intl = useIntl();
   const { form_id, id, task_id, show } = useParams();
   const navigation = useNavigate();
@@ -136,7 +142,7 @@ const ReviewForm = ({ data, formSchema = {} }) => {
   // TODO: Get user from localstorage (get key from ENV file)
   let user = getUserData();
   const [form, setForm] = useState(() => formSchema);
-  const [task, setTask] = useState();
+  const [task, setTask] = useState(() => myTask);
   const [detailsShow, setShow] = useState(() => !!data);
   const [formData, setFormData] = useState(() => data);
   const intlContext = useContext(IntlContext);
@@ -282,6 +288,7 @@ const ReviewForm = ({ data, formSchema = {} }) => {
   });
 
   renderForm.disabled = detailsShow;
+  renderForm.readPretty = true;
   const formStep = FormStep.createFormStep();
 
   return (
