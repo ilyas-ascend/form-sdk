@@ -123,7 +123,10 @@ export const ArrayCards = observer((props) => {
           }
         }
 
-        if (property?.["x-component-props"]?.content) {
+        if (
+          property?.["x-component-props"]?.content &&
+          item[property["x-component-props"].content]
+        ) {
           property["x-component-props"].content =
             item[property["x-component-props"].content];
         }

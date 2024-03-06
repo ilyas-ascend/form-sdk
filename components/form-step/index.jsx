@@ -14,6 +14,7 @@ import {
 import { Schema, SchemaKey } from "@formily/json-schema";
 import { usePrefixCls } from "@formily/antd/esm/__builtins__";
 import "antd/lib/steps/style/index";
+import toast from "react-hot-toast";
 
 const parseSteps = (schema) => {
   const steps = [];
@@ -93,46 +94,48 @@ const createFormStep = (defaultCurrent = 0) => {
     async next() {
       try {
         await env.form.validate();
-        // if (env.form.valid) {
-        // }
-      } catch {
-      } finally {
-        if (env.form.errors.length > 0) {
-          let currentData = [...formStep.stepsValidations];
-          const index = currentData.findIndex(
-            (item) => item.name === env.steps[formStep.current].props.title
-          );
-          if (index >= 0) {
-            currentData[index] = {
-              name: env.steps[formStep.current].props.title,
-              validate: false,
-            };
-          } else {
-            currentData.push({
-              name: env.steps[formStep.current].props.title,
-              validate: false,
-            });
-          }
-          formStep.stepsValidations = currentData;
-        } else {
-          let currentData = [...formStep.stepsValidations];
-          const index = currentData.findIndex(
-            (item) => item.name === env.steps[formStep.current].props.title
-          );
-          if (index >= 0) {
-            currentData[index] = {
-              name: env.steps[formStep.current].props.title,
-              validate: true,
-            };
-          } else {
-            currentData.push({
-              name: env.steps[formStep.current].props.title,
-              validate: true,
-            });
-          }
-          formStep.stepsValidations = currentData;
+        if (env.form.valid) {
+          next();
         }
-        next();
+      } catch {
+        toast.error("Please fill all the required field");
+      } finally {
+        // if (env.form.errors.length > 0) {
+        //   let currentData = [...formStep.stepsValidations];
+        //   const index = currentData.findIndex(
+        //     (item) => item.name === env.steps[formStep.current].props.title
+        //   );
+        //   if (index >= 0) {
+        //     currentData[index] = {
+        //       name: env.steps[formStep.current].props.title,
+        //       validate: false,
+        //     };
+        //   } else {
+        //     currentData.push({
+        //       name: env.steps[formStep.current].props.title,
+        //       validate: false,
+        //     });
+        //   }
+        //   formStep.stepsValidations = currentData;
+        // } else {
+        //   let currentData = [...formStep.stepsValidations];
+        //   const index = currentData.findIndex(
+        //     (item) => item.name === env.steps[formStep.current].props.title
+        //   );
+        //   if (index >= 0) {
+        //     currentData[index] = {
+        //       name: env.steps[formStep.current].props.title,
+        //       validate: true,
+        //     };
+        //   } else {
+        //     currentData.push({
+        //       name: env.steps[formStep.current].props.title,
+        //       validate: true,
+        //     });
+        //   }
+        //   formStep.stepsValidations = currentData;
+        // }
+        // next();
       }
     },
 
