@@ -123,6 +123,10 @@ const FormRender = () => {
   const navigation = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const formStep = useMemo(() => FormStep.createFormStep(), []);
+  const [version, setVersion] = useState("1");
+  const [isDev, setIsDev] = useState(
+    () => localStorage.getItem("isDev") == "true"
+  );
 
   // TODO: Get user from localstorage (get key from ENV file)
   let user = getUserData();
@@ -153,6 +157,7 @@ const FormRender = () => {
     return new DraftModal({
       class_name: task_id ? task_id : form_id,
       isEdit: id,
+      version,
       init: (data) => {
         if (!show || !id) {
           renderForm.setValues(data);
@@ -162,7 +167,27 @@ const FormRender = () => {
         return JSON.parse(JSON.stringify(renderForm.values));
       },
     });
-  }, [renderForm]);
+  }, [renderForm, version]);
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      // Check if Ctrl and period key are pressed simultaneously
+      if (event.ctrlKey && event.key === ".") {
+        setIsDev((o) => {
+          localStorage.setItem("isDev", !o);
+          return !o;
+        });
+      }
+    };
+
+    // Add event listener when the component mounts
+    document.body.addEventListener("keydown", handleKeyDown);
+
+    // Remove event listener when the component unmounts
+    return () => {
+      document.body.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []); // Empty dependency array ensures that this effect runs only once, similar to componentDidMount
 
   const formatM = useCallback(
     (msg) => {
@@ -177,8 +202,9 @@ const FormRender = () => {
   );
 
   const getForm = () => {
-    FormService.show(form_id).then((res) => {
+    FormService.show(form_id + "?isDev=" + isDev).then((res) => {
       setForm(res.data.data);
+      setVersion(res.data.version);
     });
   };
 
@@ -345,6 +371,7 @@ const FormRender = () => {
   return (
     <div dir="none">
       <ConfigProvider locale={isEn ? en_US : ar_EG}>
+        {isDev && <div className="devmode"></div>}
         <StyleProvider hashPriority="high">
           <Form {...form.schema.form} form={renderForm}>
             {formReview ? (

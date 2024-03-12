@@ -30,9 +30,10 @@ class Service {
         } = await FormService.getAllForms();
 
         data
-          // .filter((item) => item.active)
+          .filter((item) => item.status)
           ?.forEach((item) => {
             formBuilderSideMenu.push({
+              ...item,
               id: camelCase(item.name),
               title: item.name,
               titleAr: item.name,

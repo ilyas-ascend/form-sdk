@@ -36,6 +36,10 @@ function AutoSaveComponent({ draft }) {
             id="Last saved time:"
             defaultMessage={"Last saved time:"}
           />
+          <i style={{ color: "grey", fontSize: 9 }}>
+            {" "}
+            ( Form version: {draft.version} )
+          </i>
         </p>
         <div className="d-flex align-items-center justify-content-center">
           <div style={{ width: 230 }}>
@@ -72,7 +76,7 @@ function AutoSaveComponent({ draft }) {
 
 export default observer(AutoSaveComponent);
 
-const SyncComp = ({ onClick = () => { }, isAnimate = false }) => {
+const SyncComp = ({ onClick = () => {}, isAnimate = false }) => {
   return (
     <img
       onClick={(e) => {

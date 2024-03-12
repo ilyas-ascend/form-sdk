@@ -122,11 +122,7 @@ export const ArrayCards = observer((props) => {
             }
           }
         }
-
-        if (
-          property?.["x-component-props"] &&
-          item.hasOwnProperty(property["x-component-props"].content)
-        ) {
+        if (property?.["x-component-props"]?.is_dynamic) {
           property["x-component-props"].content =
             item[property["x-component-props"].content];
         }

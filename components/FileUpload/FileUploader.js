@@ -146,7 +146,7 @@ const FileUploader = forwardRef(
               <div className="custom_slide">
                 <FileProgressBar
                   value={progress}
-                  filename={file.name}
+                  filename={fileName}
                   isCompleted={isCompleted}
                 />
               </div>

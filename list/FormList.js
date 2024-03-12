@@ -15,6 +15,8 @@ import List from "../components/listing/List";
 import Dropdown from "../components/Dropdown";
 import FormService from "../services/FormService";
 import get from "lodash/get";
+import startCase from "lodash/startCase";
+
 import moment from "moment";
 import "./style.scss";
 import toast from "react-hot-toast";
@@ -30,6 +32,8 @@ import { observer } from "mobx-react";
 import { FormBuilderModel } from "../models/FormBuilderModel";
 import FileUploader from "../components/FileUpload/FileUploader";
 import { useRef } from "react";
+import Select from "react-select";
+import { selectThemeColors } from "@utils";
 
 const ListComponent = observer(() => {
   const navigate = useNavigate();
@@ -110,7 +114,7 @@ const ListComponent = observer(() => {
   };
 
   const showData = (e) => {
-    navigate("/Form-Builder/Add/" + e);
+    navigate(`/${e}/Form-Builder/Add/`);
   };
 
   const updateStatus = (id, status) => {
@@ -301,44 +305,95 @@ const ListComponent = observer(() => {
     );
   });
 
+  const FormModal = observer(() => {
+    return (
+      <ModalBody className="d-flex flex-column">
+        <Row>
+          <TextInput
+            title="Name"
+            attribute="formName"
+            value={createModalStates.formName}
+            md="12"
+            onChange={createModalStates.handleChange}
+            isValid={createModalStates.createValidation}
+          />
+          <Col className="mb-1" md="12" sm="12">
+            <Label className="form-label">
+              <FormattedMessage id="For Role" defaultMessage={"For Role"} />
+            </Label>
+            <Select
+              isMulti
+              name="Roles"
+              value={createModalStates?.meta_data?.roles?.map?.((value) => ({
+                value,
+                label: startCase(value),
+              }))}
+              onChange={(e) =>
+                createModalStates.handleChangeMeta(
+                  "roles",
+                  e.map(({ value }) => value)
+                )
+              }
+              className="react-select"
+              classNamePrefix="select"
+              theme={selectThemeColors}
+              options={[
+                {
+                  id: 2,
+                  value: "regional representatives",
+                  label: "Regional Representatives",
+                },
+                {
+                  id: 3,
+                  value: "supervisor",
+                  label: "Supervisor",
+                },
+                { id: 4, value: "agent", label: "Inspector" },
+                { id: 5, value: "pharmacist", label: "Pharmacist" },
+                { id: 5, value: "facility", label: "Facility" },
+              ]}
+              isClearable={true}
+              placeholder={"Select"}
+              closeMenuOnSelect={false}
+            />
+          </Col>
+          <FileUploaderWrapper
+            attribute="icon"
+            md="12"
+            isValid={createModalStates.createValidation}
+          />
+        </Row>
+        <Button
+          onClick={() =>
+            createModalStates.validateCreate()
+              ? createModalStates.submitCreate(null, getAllItems)
+              : null
+          }
+          color="primary"
+        >
+          <FormattedMessage
+            id={createModalStates.isEdit ? "Update" : "Create"}
+            defaultMessage={createModalStates.isEdit ? "Update" : "Create"}
+          />
+        </Button>
+      </ModalBody>
+    );
+  });
+
   return (
     <Fragment>
       <Modal
         unmountOnClose={true}
         isOpen={createModalStates.modalShow}
-        toggle={() => createModalStates.toggleModel()}
+        toggle={() => {
+          let a = new FormBuilderModel();
+          setCreateModalstates(a);
+        }}
       >
         <ModalHeader>
           <h3>Create a Form </h3>
         </ModalHeader>
-        <ModalBody className="d-flex flex-column">
-          <Row>
-            <TextInput
-              title="Name"
-              attribute="formName"
-              file={createModalStates.name}
-              md="12"
-              onChange={createModalStates.handleChange}
-              isValid={createModalStates.createValidation}
-            />
-            <FileUploaderWrapper
-              attribute="icon"
-              file={createModalStates}
-              md="12"
-              isValid={createModalStates.createValidation}
-            />
-          </Row>
-          <Button
-            onClick={() =>
-              createModalStates.validateCreate()
-                ? createModalStates.submitCreate(null, getAllItems)
-                : null
-            }
-            color="primary"
-          >
-            Create
-          </Button>
-        </ModalBody>
+        <FormModal />
       </Modal>
       {!!selectedRow && (
         <Dropdown
@@ -346,11 +401,12 @@ const ListComponent = observer(() => {
           row={selectedRow}
           DeleteData={DeleteData}
           showData={showData}
-          editTitle="Open Engine"
+          editTitle="Edit"
           detailsText="Open Form"
           isEdit={true}
           isDelete={canEditDelete}
-          onEdit={(id) => createModalStates.onEdit(id)}
+          onEdit={(id) => createModalStates.onEdit(selectedRow)}
+          openEngin={(id) => createModalStates.openEngine(id)}
           onClose={() => setSelectedRow(null)}
         />
       )}
@@ -363,7 +419,11 @@ const ListComponent = observer(() => {
         addButton={
           <Button.Ripple
             outline
-            onClick={() => createModalStates.toggleModel()}
+            onClick={() => {
+              let a = new FormBuilderModel();
+              setCreateModalstates(a);
+              a.toggleModel();
+            }}
             className="add-form-button waves-effect round btun   btn btn-primary my-1"
           >
             <p className="">
