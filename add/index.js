@@ -313,7 +313,22 @@ const FormRender = () => {
     }
   }, [form?.schema?.form]);
 
-  if (!schema) return <Spinner />;
+  if (!schema) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          width: "100%",
+          justifyContent: "center",
+          height: "80vh",
+        }}
+      >
+        <Spinner />
+      </div>
+    );
+  }
+
   BuilderService.schema = schema;
 
   const setIsReview = (e) => {
@@ -418,7 +433,6 @@ const FormRender = () => {
                       <Button
                         disabled={!formStep.allowNext}
                         onClick={() => {
-                          console.log(formStep.steps, "ilyas");
                           formStep.next();
                         }}
                       >
@@ -426,29 +440,20 @@ const FormRender = () => {
                       </Button>
                     </>
                     <>
-                      {formReview ? (
-                        <Submit
-                          disabled={formStep.allowNext}
-                          onSubmit={showModal}
-                          onSubmitSuccess={(e) => console.log("Success", e)}
-                          onSubmitFailed={(e) =>
-                            toast.error(
-                              formatM("Please fill all the required fields!")
-                            )
-                          }
-                          className="submitButton"
-                          loading={isSubmitting}
-                        >
-                          {formatM(id || task?.data ? "Update" : "Submit")}
-                        </Submit>
-                      ) : (
-                        <Submit
-                          disabled={formStep.allowNext}
-                          onSubmit={setIsReview}
-                        >
-                          Review
-                        </Submit>
-                      )}
+                      <Submit
+                        disabled={formStep.allowNext}
+                        onSubmit={showModal}
+                        onSubmitSuccess={(e) => console.log("Success", e)}
+                        onSubmitFailed={(e) =>
+                          toast.error(
+                            formatM("Please fill all the required fields!")
+                          )
+                        }
+                        className="submitButton"
+                        loading={isSubmitting}
+                      >
+                        {formatM(id || task?.data ? "Update" : "Submit")}
+                      </Submit>
                     </>
                     <Modal
                       title="Steps Status"

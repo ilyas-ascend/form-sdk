@@ -116,14 +116,38 @@ export const FormReviewStep = connect(
     formStep?.connect?.(steps, field);
     return (
       <div className={cls(prefixCls, className)}>
+        <Steps
+          {...props}
+          style={{
+            marginBottom: 10,
+            ...props.style,
+            display: "flex",
+            flexWrap: "wrap",
+          }}
+          current={current}
+        >
+          {steps.map(({ props }, key) => {
+            return (
+              <Steps.Step
+                onClick={() => formStep.setCurrent(key)}
+                {...props}
+                key={key}
+                style={{
+                  display: "flex",
+                  paddingInlineStart: "unset",
+                  padding: 5,
+
+                  justifyContent: "start",
+                  flex: "unset",
+                  cursor: "pointer",
+                }}
+              />
+            );
+          })}
+        </Steps>
         {steps.map(({ name, schema }, key) => {
-          // if (key !== current) return;
-          return (
-            <>
-              <h1>{schema["x-component-props"].title}</h1>
-              <RecursionField key={key} name={name} schema={schema} />
-            </>
-          );
+          if (key !== current) return;
+          return <RecursionField key={key} name={name} schema={schema} />;
         })}
       </div>
     );

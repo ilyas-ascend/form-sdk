@@ -161,11 +161,29 @@ export const FormStep = connect(
       <div className={cls(prefixCls, className)}>
         <Steps
           {...props}
-          style={{ marginBottom: 10, ...props.style }}
+          style={{
+            marginBottom: 10,
+            ...props.style,
+            display: "flex",
+            flexWrap: "wrap",
+          }}
           current={current}
         >
           {steps.map(({ props }, key) => {
-            return <Steps.Step {...props} key={key} />;
+            return (
+              <Steps.Step
+                {...props}
+                key={key}
+                style={{
+                  display: "flex",
+                  paddingInlineStart: "unset",
+                  padding: 5,
+
+                  justifyContent: "start",
+                  flex: "unset",
+                }}
+              />
+            );
           })}
         </Steps>
         {steps.map(({ name, schema }, key) => {
