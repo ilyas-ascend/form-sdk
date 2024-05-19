@@ -1,5 +1,6 @@
 import { StyleProvider } from "@ant-design/cssinjs";
 import { CheckOutlined, CloseOutlined } from "@ant-design/icons";
+
 import {
   ArrayTable,
   Cascader,
@@ -10,7 +11,7 @@ import {
   FormButtonGroup,
   FormCollapse,
   FormGrid,
-  FormItem,
+  // FormItem,
   FormLayout,
   FormTab,
   Input,
@@ -74,6 +75,7 @@ import BuilderService from "../services/BuilderService";
 import FormService from "../services/FormService";
 import TaskService from "../services/TaskService";
 import "./style.scss";
+import FormItem from "../components/form-item";
 
 const Divider = () => {
   return <ANTDDivider style={{ margin: 10 }} />;
@@ -155,7 +157,7 @@ const FormRender = () => {
 
   const draft = useMemo(() => {
     return new DraftModal({
-      class_name: task_id ? task_id : form_id,
+      class_name: version + (task_id ? task_id : form_id),
       isEdit: id,
       version,
       init: (data) => {
@@ -203,8 +205,8 @@ const FormRender = () => {
 
   const getForm = () => {
     FormService.show(form_id + "?isDev=" + isDev).then((res) => {
-      setForm(res.data.data);
-      setVersion(res.data.version);
+      setForm(res.data?.data);
+      setVersion(res.data?.version);
     });
   };
 
@@ -312,6 +314,7 @@ const FormRender = () => {
       });
     }
   }, [form?.schema?.form]);
+  formStep.skipValidation = GlobalUtility?.skipValidation;
 
   if (!schema) {
     return (
@@ -355,9 +358,9 @@ const FormRender = () => {
     }
 
     if (id) {
-      await BuilderService.update(id, e, form_id);
+      await BuilderService.update(id, e, form_id, version);
     } else {
-      await BuilderService.create(form_id, e);
+      await BuilderService.create(form_id, e, version);
     }
     draft.clearDraft();
     setIsSubmitting(false);
@@ -385,7 +388,15 @@ const FormRender = () => {
   };
   return (
     <div dir="none">
-      <ConfigProvider locale={isEn ? en_US : ar_EG}>
+      <ConfigProvider
+        locale={isEn ? en_US : ar_EG}
+        theme={{
+          token: {
+            colorPrimary: "#51AA46",
+            colorPrimaryBorderHover: "#51AA46",
+          },
+        }}
+      >
         {isDev && <div className="devmode"></div>}
         <StyleProvider hashPriority="high">
           <Form {...form.schema.form} form={renderForm}>
@@ -442,7 +453,7 @@ const FormRender = () => {
                     <>
                       <Submit
                         disabled={formStep.allowNext}
-                        onSubmit={showModal}
+                        onSubmit={handelSubmit}
                         onSubmitSuccess={(e) => console.log("Success", e)}
                         onSubmitFailed={(e) =>
                           toast.error(
@@ -455,7 +466,7 @@ const FormRender = () => {
                         {formatM(id || task?.data ? "Update" : "Submit")}
                       </Submit>
                     </>
-                    <Modal
+                    {/* <Modal
                       title="Steps Status"
                       open={isModalOpen}
                       onCancel={handleCancel}
@@ -478,22 +489,22 @@ const FormRender = () => {
                       ]}
                     >
                       <Row gutter={[0, 16]}>
-                        {formStep.stepsValidations.map((item) => {
+                        {formStep.steps.map((item, index) => {
                           return (
                             <>
-                              <Col span={20}>{item.name}</Col>
+                              <Col span={20}>{item.props.title}</Col>
                               <Col span={4}>
-                                {item.validate ? (
-                                  <CheckOutlined />
+                                {!formStep.stepsValidations.includes(index) ? (
+                                  <CheckOutlined style={{ color: "green" }} />
                                 ) : (
-                                  <CloseOutlined />
+                                  <CloseOutlined style={{ color: "red" }} />
                                 )}
                               </Col>
                             </>
                           );
                         })}
                       </Row>
-                    </Modal>
+                    </Modal> */}
                   </FormButtonGroup>
                 )}
               </FormConsumer>
