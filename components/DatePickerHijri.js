@@ -1,17 +1,26 @@
-import React, { useState } from 'react'
-import DatePicker from 'react-multi-date-picker'
+import React, { useState } from "react";
+import DatePicker from "react-multi-date-picker";
 
-import arabic from 'react-date-object/calendars/arabic'
-import arabic_ar from 'react-date-object/locales/arabic_en'
-import { connect, mapProps, mapReadPretty } from '@formily/react'
-import { PreviewText } from '@formily/antd'
+import arabic from "react-date-object/calendars/arabic";
+import arabic_ar from "react-date-object/locales/arabic_en";
+import { connect, mapProps, mapReadPretty } from "@formily/react";
+import { PreviewText } from "@formily/antd";
 import { observer } from "@formily/reactive-react";
+import "react-multi-date-picker/styles/colors/green.css";
 
-
-const DatePickerHijriComp = observer((
-  props
-) => {
+const DatePickerHijriComp = observer((props) => {
   let style = `
+
+  :root {
+    --rmdp-primary-green: #51AA46;
+    --rmdp-secondary-green: #87ad92;
+    --rmdp-shadow-green: #87ad92;
+    --rmdp-today-green: #01ff70;
+    --rmdp-hover-green: #2ecc40;
+    --rmdp-deselect-green: #39795c;
+  }
+
+  
   .rmdp-container {
     display: unset !important;
     height: 200px !important;
@@ -25,21 +34,22 @@ const DatePickerHijriComp = observer((
   }
 
   .date-picker-input:focus {
-    border: 1px solid #4096ff;
+    border: 1px solid #51AA46;
   }
+}
 
-`
+`;
   const size = {
     small: 34,
     large: 40,
-  }
+  };
 
   const datePickerStyles = {
-    width: '100%', // Set the width to 100%
+    width: "100%", // Set the width to 100%
     height: size[props.size] || size.small,
     lineHeight: 34,
-    color: props.disabled ? "#DFCCCC" : "unset"
-  }
+    color: props.disabled ? "#DFCCCC" : "unset",
+  };
 
   return (
     <div>
@@ -48,31 +58,18 @@ const DatePickerHijriComp = observer((
         style={datePickerStyles}
         calendar={arabic}
         locale={arabic_ar}
-        className="form-control"
+        className="form-control green"
         inputClass="date-picker-input"
         {...props}
       />
     </div>
-  )
-})
+  );
+});
 
 const DatePickerHijri = connect(
   DatePickerHijriComp,
   mapProps((props) => {
-    const getDefaultFormat = (props) => {
-      if (props['picker'] === 'month') {
-        return 'YYYY-MM';
-      } else if (props['picker'] === 'quarter') {
-        return 'YYYY-\\QQ';
-      } else if (props['picker'] === 'year') {
-        return 'YYYY';
-      } else if (props['picker'] === 'week') {
-        return 'gggg-wo';
-      }
-      return 'YYYY-MM-DD HH:mm:ss';
-    };
-    // const format = props['format'] || getDefaultFormat(props);
-    const format = props['format'];
+    const format = props["format"] || "YYYY-MM-DD";
     const onChange = props.onChange.bind(props);
 
     return {
@@ -80,13 +77,14 @@ const DatePickerHijri = connect(
       format: format,
       value: props.value ? new Date(props.value) : null,
       onChange: (value) => {
-        if (onChange) {
-          onChange(value?.toDate?.());
+        if (props.onChange) {
+          let date = value?.toDate?.()?.toDateString?.();
+          onChange(date);
         }
       },
     };
   }),
   mapReadPretty(PreviewText.DatePicker)
-)
+);
 
-export default DatePickerHijri
+export default DatePickerHijri;

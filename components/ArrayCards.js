@@ -101,6 +101,7 @@ export const ArrayCards = observer((props) => {
 
         if (item[property.title]) {
           property.title = item[property.title];
+          property["x-component-props"]["number"] = index + 1;
           property.required = !!item.required;
           if (item.priority) {
             property["x-decorator-props"]["addonAfter"] = (
