@@ -281,3 +281,15 @@
     margin-left: 6px !important;
   }
 }
+
+.status-classes {
+  .Pending {
+    color: #f89131 !important;
+  }
+  .Rejected {
+    color: #f9554b !important;
+  }
+  .Approved {
+    color: #10a925 !important;
+  }
+}

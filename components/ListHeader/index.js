@@ -2,11 +2,7 @@ import React, { useCallback, useEffect } from "react";
 import { Plus } from "react-feather";
 import { FormattedMessage, useIntl } from "react-intl";
 import { Button, Card, CardBody, Col, Input, Row, Spinner } from "reactstrap";
-import {
-  DashboardIcon,
-  filterDateIcon,
-  searchIcon,
-} from "../../assets/SVG";
+import { DashboardIcon, filterDateIcon, searchIcon } from "../../assets/SVG";
 import TotalRecords from "./TotalRecords";
 import FlatPicker from "react-flatpickr";
 import { useNavigate } from "react-router-dom";
@@ -23,11 +19,12 @@ function ListHeader({
   getData,
   loading,
   isPerPage = false,
-  onPageSelection = () => { },
+  onPageSelection = () => {},
   per_page = 10,
   totalHeader,
   addButtonText,
   addButton = null,
+  dynamicDashboardUrl,
   id,
 }) {
   const navigate = useNavigate();
@@ -36,9 +33,8 @@ function ListHeader({
     return intl.formatMessage({
       id: msg,
       defaultMessage: msg,
-    })
-  }
-
+    });
+  };
 
   const handleChange = useCallback(
     debounce((name, value) => {
@@ -98,8 +94,8 @@ function ListHeader({
               {addButton}
 
               {dashboardUrl &&
-                userData?.type != "agent" &&
-                userData?.type != "pharmacist" ? (
+              userData?.type != "agent" &&
+              userData?.type != "pharmacist" ? (
                 <Button.Ripple
                   outline
                   onClick={() => navigate(dashboardUrl)}
@@ -114,6 +110,21 @@ function ListHeader({
                   <figure>{DashboardIcon}</figure>
                 </Button.Ripple>
               ) : null}
+              {dynamicDashboardUrl && (
+                <Button.Ripple
+                  outline
+                  onClick={() => navigate(dynamicDashboardUrl)}
+                  className="dashboard-button  my-1"
+                >
+                  <p>
+                    <FormattedMessage
+                      defaultMessage={"Dashboard"}
+                      id="Dashboard"
+                    />
+                  </p>
+                  <figure>{DashboardIcon}</figure>
+                </Button.Ripple>
+              )}
             </div>
           </Col>
           <Col md="4" className="d-flex">
@@ -136,7 +147,6 @@ function ListHeader({
           <Col md={"8"} sm="12" className="filter-container">
             {filter && (
               <>
-                {" "}
                 <div className="filter-date mt-1">
                   <FlatPicker
                     className="form-control date-picker-input"

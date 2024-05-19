@@ -15,6 +15,17 @@ import { Schema, SchemaKey } from "@formily/json-schema";
 import { usePrefixCls } from "@formily/antd/esm/__builtins__";
 import "antd/lib/steps/style/index";
 import toast from "react-hot-toast";
+import { Col, DropdownItem, Row } from "reactstrap";
+import {
+  DropdownMenu,
+  DropdownToggle,
+  Progress,
+  UncontrolledDropdown,
+} from "reactstrap";
+import { back, backButton, moreDrop, next } from "../../assets/SVG";
+
+import "./style.css";
+import { IntlService } from "../../../wasfaty/services";
 
 const parseSteps = (schema) => {
   const steps = [];
@@ -77,9 +88,20 @@ const createFormStep = (defaultCurrent = 0) => {
     },
     current: defaultCurrent,
     stepsValidations: [],
-    setCurrent(key) {
-      setDisplay(key);
-      formStep.current = key;
+    skipValidation: false,
+    async setCurrent(key) {
+      try {
+        await env.form.validate();
+
+        setDisplay(key);
+        formStep.current = key;
+      } catch {
+        formStep.stepsValidations.push(formStep.current);
+
+        if (!formStep.skipValidation) {
+          toast.error("Please fill all the required field");
+        }
+      }
     },
     get allowNext() {
       return formStep.current < env.steps.length - 1;
@@ -95,47 +117,19 @@ const createFormStep = (defaultCurrent = 0) => {
       try {
         await env.form.validate();
         if (env.form.valid) {
+          formStep.stepsValidations = formStep.stepsValidations.filter(
+            (item) => item !== formStep.current
+          );
           next();
         }
       } catch {
-        toast.error("Please fill all the required field");
-      } finally {
-        // if (env.form.errors.length > 0) {
-        //   let currentData = [...formStep.stepsValidations];
-        //   const index = currentData.findIndex(
-        //     (item) => item.name === env.steps[formStep.current].props.title
-        //   );
-        //   if (index >= 0) {
-        //     currentData[index] = {
-        //       name: env.steps[formStep.current].props.title,
-        //       validate: false,
-        //     };
-        //   } else {
-        //     currentData.push({
-        //       name: env.steps[formStep.current].props.title,
-        //       validate: false,
-        //     });
-        //   }
-        //   formStep.stepsValidations = currentData;
-        // } else {
-        //   let currentData = [...formStep.stepsValidations];
-        //   const index = currentData.findIndex(
-        //     (item) => item.name === env.steps[formStep.current].props.title
-        //   );
-        //   if (index >= 0) {
-        //     currentData[index] = {
-        //       name: env.steps[formStep.current].props.title,
-        //       validate: true,
-        //     };
-        //   } else {
-        //     currentData.push({
-        //       name: env.steps[formStep.current].props.title,
-        //       validate: true,
-        //     });
-        //   }
-        //   formStep.stepsValidations = currentData;
-        // }
-        // next();
+        formStep.stepsValidations.push(formStep.current);
+
+        if (!formStep.skipValidation) {
+          toast.error("Please fill all the required field");
+        } else {
+          next();
+        }
       }
     },
 
@@ -157,10 +151,80 @@ export const FormStep = connect(
     const steps = parseSteps(schema);
     const current = props.current || formStep?.current || 0;
     formStep?.connect?.(steps, field);
+
     return (
       <div className={cls(prefixCls, className)}>
-        <Steps
+        <div className="px-1 mainContainer align-items-center mb-2">
+          <div className="d-flex align-items-center">
+            <p className="stepHead m-0">
+              {steps[formStep?.current]?.props?.title}
+            </p>
+          </div>
+          <div className=" scnndcontainer">
+            <div className="mx-1">
+              <p className="steoptext">
+                {IntlService.m("Step")}{" "}
+                <span className="text-primary">{formStep?.current + 1}</span> /{" "}
+                {steps.length}
+              </p>
+            </div>
+            <div className="progressbarContainer">
+              <Progress
+                value={((formStep.current + 1) / steps.length) * 100}
+                color={"success"}
+                className="progress progressbar"
+              />
+            </div>
+            <div className="d-flex justify-content-center justify-content-between actions mx-1">
+              <figure className="cursor-pointer" onClick={formStep.back}>
+                {IntlService.isRtl ? next : back}
+              </figure>
+
+              <UncontrolledDropdown className="mx-1">
+                <DropdownToggle
+                  data-toggle="dropdown"
+                  className="d-flex align-items-center dropDownButton"
+                  tag="span"
+                >
+                  <p className="m-0 stepnameinButoon">
+                    {" "}
+                    {steps[formStep?.current]?.props?.title}
+                  </p>{" "}
+                  <span className="ms-1">{moreDrop}</span>
+                </DropdownToggle>
+                <DropdownMenu className="menuContainer">
+                  {steps.map(({ props }, index) => (
+                    <DropdownItem
+                      active={index == formStep.current}
+                      className="w-100"
+                      key={index}
+                      onClick={() => {
+                        formStep?.setCurrent(index);
+                      }}
+                    >
+                      {props.title}
+                    </DropdownItem>
+                  ))}
+                </DropdownMenu>
+              </UncontrolledDropdown>
+
+              <figure
+                className="cursor-pointer"
+                onClick={() => formStep.next()}
+              >
+                {IntlService.isRtl ? back : next}
+              </figure>
+            </div>
+          </div>
+        </div>
+
+        {/* <Steps
           {...props}
+          onChange={
+            props.stepPress && !props.onChange
+              ? formStep.setCurrent
+              : props.onChange
+          }
           style={{
             marginBottom: 10,
             ...props.style,
@@ -174,6 +238,7 @@ export const FormStep = connect(
               <Steps.Step
                 {...props}
                 key={key}
+                progressDot={true}
                 style={{
                   display: "flex",
                   paddingInlineStart: "unset",
@@ -185,7 +250,7 @@ export const FormStep = connect(
               />
             );
           })}
-        </Steps>
+        </Steps> */}
         {steps.map(({ name, schema }, key) => {
           if (key !== current) return;
           return <RecursionField key={key} name={name} schema={schema} />;

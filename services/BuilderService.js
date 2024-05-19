@@ -1,13 +1,13 @@
 import toast from "react-hot-toast";
-import { SC } from "../api/serverCall"
+import { SC } from "../api/serverCall";
 
 class Service {
   TRANSLATION = {};
-  navigation = null
-  schema = {}
-  SC = SC
+  navigation = null;
+  schema = {};
+  SC = SC;
 
-  constructor() { }
+  constructor() {}
 
   async find(id) {
     try {
@@ -27,25 +27,37 @@ class Service {
     }
   }
 
-  async create(id, data) {
+  async showAllData(id) {
     try {
-      const res = await this.SC.postCall({ url: `FormSubmission/create`, data: { data, id } });
-      toast.success(res.data.data);
-      this.navigation(`/${id}/Form-Builder`);
+      const res = await this.SC.getCall({ url: `FormSubmission/show/${id}` });
+      return res.data.data;
     } catch (error) {
       console.log(error);
     }
   }
 
-  async update(id, data, task_id) {
+  async create(formId, data, schema_version) {
+    try {
+      const res = await this.SC.postCall({
+        url: `FormSubmission/create`,
+        data: { data, id: formId, schema_version },
+      });
+      toast.success(res.data.data);
+      this.navigation(`/${formId}/Form-Builder`);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async update(id, data, formId, schema_version) {
     try {
       const res = await this.SC.putCall({
         url: `FormSubmission/update/${id}`,
-        data: { data },
+        data: { data, schema_version },
       });
 
       toast.success(res.data.data);
-      this.navigation(`/${task_id}/Form-Builder`);
+      this.navigation(`/${formId}/Form-Builder`);
     } catch (error) {
       console.log(error);
     }
@@ -94,7 +106,7 @@ class Service {
           "suffix",
           "tooltip",
           "content",
-          "clearText"
+          "clearText",
         ].includes(key) &&
         typeof obj[key] === "string"
       ) {

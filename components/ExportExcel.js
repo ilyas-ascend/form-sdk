@@ -27,7 +27,8 @@ const ExportExcelComponent = (props) => {
     await FormSubmissionService.all({ id: form_id }).then((res) => {
       let excel = new ExcelService(
         res.data.schema.data.schema.schema,
-        res.data.data
+        res.data.data,
+        res.data.schema.data
       );
       excel.generateExcel();
       setLoading(false);

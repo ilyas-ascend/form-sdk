@@ -1,5 +1,8 @@
 import { ArrayTable as MyArrayTable } from "@formily/antd";
-import moment from "moment";
+import arabic from "react-date-object/calendars/arabic";
+import arabic_ar from "react-date-object/locales/arabic_en";
+import DateObject from "react-date-object";
+
 export const Switch = (props) => {
   return <p>{props?.value ? "Yes" : "No"}</p>;
 };
@@ -13,9 +16,16 @@ Input.TextArea = Input;
 
 export const DatePicker = (props) => <p>{props?.value || "-"}</p>;
 export const TimePicker = (props) => <p>{props?.value || "-"}</p>;
+
 export const DatePickerHijri = (props) => {
-  return <p>{props?.value ? moment(props.value).format("YYYY-MM-DD") : "-"}</p>;
+  let date = new DateObject({
+    date: new Date(props.value),
+    calendar: arabic,
+    locale: arabic_ar,
+  });
+  return <span>{date?.format?.("YYYY-MM-DD")} </span>;
 };
+
 export const Upload = (props) => {
   return (
     <div>

@@ -255,11 +255,12 @@ const ListComponent = observer(() => {
     }
   );
   const TextInput = observer(
-    ({ attribute, title, md = "6", value, onChange }) => {
+    ({ attribute, title, md = "6", value, onChange, isRequired = true }) => {
       return (
         <Col className="mb-1" md={md} sm="12">
           <Label className="form-label">
-            <FormattedMessage id={title} defaultMessage={title} /> *
+            <FormattedMessage id={title} defaultMessage={title} />{" "}
+            {isRequired ? " *" : ""}
           </Label>
           <Input
             type="text"
@@ -267,7 +268,9 @@ const ListComponent = observer(() => {
             onChange={(e) => onChange(attribute, e.target.value)}
           />
 
-          <ValidationHandler isValid={createModalStates[attribute]} />
+          {isRequired && (
+            <ValidationHandler isValid={createModalStates[attribute]} />
+          )}
         </Col>
       );
     }
@@ -317,6 +320,15 @@ const ListComponent = observer(() => {
             onChange={createModalStates.handleChange}
             isValid={createModalStates.createValidation}
           />
+          <TextInput
+            title="Menu Name"
+            attribute="menuName"
+            value={createModalStates?.meta_data?.menuName}
+            md="12"
+            onChange={createModalStates.handleChangeMeta}
+            isRequired={false}
+          />
+
           <Col className="mb-1" md="12" sm="12">
             <Label className="form-label">
               <FormattedMessage id="For Role" defaultMessage={"For Role"} />
@@ -351,7 +363,26 @@ const ListComponent = observer(() => {
                 { id: 4, value: "agent", label: "Inspector" },
                 { id: 5, value: "pharmacist", label: "Pharmacist" },
                 { id: 5, value: "facility", label: "Facility" },
+                { id: 7, value: "cluster manager", label: "Cluster Manager" },
               ]}
+              isClearable={true}
+              placeholder={"Select"}
+              closeMenuOnSelect={false}
+            />
+          </Col>
+          <Col className="mb-1" md="12" sm="12">
+            <Label className="form-label">
+              <FormattedMessage id="For Region" defaultMessage={"For Region"} />
+            </Label>
+            <Select
+              isMulti
+              name="regions"
+              value={createModalStates?.meta_data?.regions}
+              onChange={(e) => createModalStates.handleChangeMeta("regions", e)}
+              className="react-select"
+              classNamePrefix="select"
+              theme={selectThemeColors}
+              options={createModalStates.regionOptions}
               isClearable={true}
               placeholder={"Select"}
               closeMenuOnSelect={false}
